@@ -1,0 +1,97 @@
+#include "GrayImage.hpp"
+#include <stdexcept>
+//#include <string>		
+
+GrayImage::GrayImage(ushort w, ushort h)
+	:width(w), height(h), array(0)
+{ array = new ubyte[width*height]; }
+
+GrayImage::GrayImage()
+	:array(0)
+{ throw std::runtime_error("It's ilegal to create a GrayImage's instance without parameters."); }
+
+GrayImage::GrayImage(const GrayImage& source)
+	:width(source.width), height(source.height), array(new ubyte[width*height])
+{ for(uint i=0; i<uint(width*height); ++i) array[i]=source.array[i]; }
+
+void GrayImage::clear(ubyte gray){ 
+	for(uint i=0; i<uint(width*height);++i) 
+		array[i]=gray; 
+}
+
+void GrayImage::writeRAW(std::ostream& f){
+	ubyte tmp[4];
+	// poids faibles  |  poids forts
+	tmp[0]=width%256;	tmp[1]=width>>8;
+	tmp[2]=height%256;	tmp[3]=height>>8;
+	f.write((const char*)tmp, 4);
+	f.write((const char*)array, width*height);
+}
+
+void GrayImage::writePGM(std::ostream& f){
+	f<<"P5\n"; // Magic Number
+	f<<"# Commentaire \n";
+	f<<width<<" "<<height<<std::endl; // Utilisation du cin car il s'agit de texte
+	f<<"# Commentaire 2 \n";
+	f<<"255\n"; // Valeur max des niveaux de gris
+	//> No more comments here
+	f.write((const char*)array, width*height);
+}
+
+GrayImage* GrayImage::readPGM(std::istream& is){
+	ushort width, height;
+	ubyte gray;
+	std::string s;
+
+	is>>s;
+	GrayImage::skip_line(is);
+	GrayImage::skip_comments(is);
+	is>>width>>height;
+	GrayImage::skip_line(is);
+	GrayImage::skip_comments(is);
+	is>>gray;
+	GrayImage::skip_line(is);
+	
+	GrayImage* i = new GrayImage(width, height);
+	is.read((char*)i->array, width*height);
+
+	return i;
+}
+
+void GrayImage::fillRectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
+	for(uint i=y; i< y+w ; ++i)
+		for(uint j=x; j < x+h; ++j)
+			pixel(i,j)=color;
+}
+
+void GrayImage::rectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
+	for(uint i=x; i < uint(x+w+1) ; ++i){
+		pixel(i,y)=color;
+		pixel(i,y+h)=color;
+	}
+	
+	for(uint j=y+1; j < y+h ; ++j){
+		pixel(x,j)=color;
+		pixel(x+w,j)=color;	
+	}
+}
+
+// skip_line(is) permet de sauter toute une série d'octets de "is" jusqu'à trouver un '\n'
+void GrayImage::skip_line(std::istream& is){
+	char c;
+	// Lire un caractère
+	do{ is.get(c); } while(c!='\n'); // tant qu'on n'atteint pas la fin de ligne.
+}
+
+// skip_comments(is) utilise la fonction précédente pour sauter zéro, une ou plusieurs lignes
+// de commentaires débutées par '#' et allant jusqu'à '\n'.
+void GrayImage::skip_comments(std::istream& is){
+	char c;
+	is.get(c);       // Lire un caractère.
+	// Tant que c'est un '#'.
+	while(c=='#'){
+		skip_line(is); // On élimine les caractères jusqu'à la fin de ligne,
+		is.get(c);     // Et on lit un nouveau caractère.
+	}
+	is.putback(c);   // On remet le caractère lu puisqu'il n'est pas un '#'.
+}

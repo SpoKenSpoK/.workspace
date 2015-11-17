@@ -38,6 +38,9 @@ public:
 	
 	static void skip_line(std::istream& );
 	static void skip_comments(std::istream& );
+
+	GrayImage* simpleScale(ushort w, ushort h) const;
+	GrayImage* bilinearScale(ushort w, ushort h) const;
 };
 
 #endif //GRAYIMAGE_HPP

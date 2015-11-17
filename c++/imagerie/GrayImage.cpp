@@ -95,3 +95,46 @@ void GrayImage::skip_comments(std::istream& is){
 	}
 	is.putback(c);   // On remet le caractère lu puisqu'il n'est pas un '#'.
 }
+
+GrayImage* GrayImage::simpleScale(ushort w, ushort h) const{
+	GrayImage* iprime = new GrayImage(w,h);
+
+	for(ushort yprime = 0; yprime<h; ++yprime)
+		for(ushort xprime = 0; xprime<w; ++xprime){
+			double x = (double(xprime)/w)* width;
+			double y = (double(yprime)/h)* height;
+
+			ushort xi=ushort(x);
+			ushort yi=ushort(y);
+
+			iprime->pixel(xprime, yprime) = pixel(xi, yi);
+		}
+
+	return iprime;
+}
+
+GrayImage* GrayImage::bilinearScale(ushort w, ushort h) const{
+	GrayImage* iprime = new GrayImage(w,h);
+
+	for(ushort yprime=0; yprime<h; ++yprime)
+		for(ushort xprime=0; xprime<w; ++xprime){
+			double x = (double(xprime)/w)* width;
+			double y = (double(yprime)/h)* height;
+
+			ushort xi=ushort(x);
+			ushort yi=ushort(y);
+
+			ushort xiPone = (xi+1 >= width ? xi : xi+1);
+			ushort yiPone = (yi+1 >= height ? yi : yi+1);
+
+			double lambdA = x - xi;
+			double mU = y - yi;
+
+			iprime->pixel(xprime, yprime)=(1-lambdA)*(1-mU)*pixel(xi, yi)
+										 +(1-lambdA)*mU*pixel(xi, yiPone)
+										 +lambdA*(1-mU)*pixel(xiPone, yi)
+										 +lambdA*mU*pixel(xiPone, yiPone);
+		}
+
+	return iprime;
+}

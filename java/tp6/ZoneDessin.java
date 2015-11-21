@@ -37,10 +37,10 @@ public class ZoneDessin extends JPanel{
 		
 		for(int i=1; i<=12 ;++i){
 			g.setColor(Color.black);
-			g.drawString(Integer.toString(i), xOrigin+(int)(Math.cos(Math.toRadians((i-3)*(-angle)))*radius), yOrigin-(int)(Math.sin(Math.toRadians((i-3)*(-angle)))*radius));
-			/*g.setColor(Color.green);
-			drawCenteredString(Integer.toString(i), xOrigin+(int)(Math.cos(Math.toRadians((i-3)*(-angle)))*radius), yOrigin-(int)(Math.sin(Math.toRadians((i-3)*(-angle)))*radius), g);
-			*/
+			g.drawString(Integer.toString(i), xOrigin-5+(int)(Math.cos(Math.toRadians((i-3)*(-angle)))*radius), yOrigin+4-(int)(Math.sin(Math.toRadians((i-3)*(-angle)))*radius));
+			//g.setColor(Color.green);
+			//drawCenteredString(Integer.toString(i), xOrigin+(int)(Math.cos(Math.toRadians((i-3)*(-angle)))*radius), yOrigin-(int)(Math.sin(Math.toRadians((i-3)*(-angle)))*radius), g);
+			
 			g.drawLine( xOrigin+(int)(0.75*(Math.cos(Math.toRadians((i-3)*(-angle)))*radius)), 
 						yOrigin-(int)(0.75*(Math.sin(Math.toRadians((i-3)*(-angle)))*radius)),
 						xOrigin+(int)(0.90*(Math.cos(Math.toRadians((i-3)*(-angle)))*radius)),
@@ -56,8 +56,8 @@ public class ZoneDessin extends JPanel{
 
 		Calendar date = new GregorianCalendar();
 		int hours = date.get(Calendar.HOUR_OF_DAY);
-		int minutes = date.get(Calendar.MINUTE);
-		int secondes = date.get(Calendar.SECOND);
+		int minutes = date.get(Calendar.MINUTE) - 15;
+		int secondes = date.get(Calendar.SECOND) - 14;
 
 
 		Graphics2D gg = (Graphics2D) g;
@@ -77,8 +77,8 @@ public class ZoneDessin extends JPanel{
 		gg.setColor(Color.blue);
 		gg.drawLine(getWidth()/2, 
 					getHeight()/2,  
-					getWidth()/2+(int)(0.75*(Math.cos(Math.toRadians((minutes-15)*(-360/60)))*125)), 
-					getHeight()/2-(int)(0.75*(Math.sin(Math.toRadians((minutes-15)*(-360/60)))*125)) );
+					getWidth()/2+(int)(0.75*(Math.cos(Math.toRadians((minutes)*(-360/60)))*125)), 
+					getHeight()/2-(int)(0.75*(Math.sin(Math.toRadians((minutes)*(-360/60)))*125)) );
 
 		//Secondes
 		line = new BasicStroke(1.0f);
@@ -86,16 +86,17 @@ public class ZoneDessin extends JPanel{
 		gg.setColor(Color.black);
 		gg.drawLine(getWidth()/2, 
 					getHeight()/2,  
-					getWidth()/2+(int)(0.75*(Math.cos(Math.toRadians((secondes-15)*(-360/60)))*125)), 
-					getHeight()/2-(int)(0.75*(Math.sin(Math.toRadians((secondes-15)*(-360/60)))*125)) );
+					getWidth()/2+(int)(0.75*(Math.cos(Math.toRadians((secondes)*(-360/60)))*125)), 
+					getHeight()/2-(int)(0.75*(Math.sin(Math.toRadians((secondes)*(-360/60)))*125)) );
 
 	}
-	/*
-	public void drawCenteredString(String s, int w, int h, Graphics g) {
+	
+/*	public void drawCenteredString(String s, int w, int h, Graphics g) {
     	FontMetrics fm = g.getFontMetrics();
     	int x = (w - fm.stringWidth(s));
     	//int y = (fm.getAscent() + (h - (fm.getAscent() + fm.getDescent())));
     	g.drawString(s, x, h);
-  	}  */
+  	}
+  	*/
 
 }

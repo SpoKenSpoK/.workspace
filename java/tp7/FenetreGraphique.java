@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FenetreGraphique extends JFrame implements ActionListener {
 
@@ -36,6 +37,10 @@ public class FenetreGraphique extends JFrame implements ActionListener {
         // Aciton effectuée sur l'item quitter
         itemFichier_quitter.setActionCommand("exit");
         itemFichier_quitter.addActionListener(this);
+
+        // Action effectuée sur l'item charger
+        itemFichier_charger.setActionCommand("load");
+        itemFichier_charger.addActionListener(this);
         //----------------------------------
 
         // Item de l'onglet couleur
@@ -62,9 +67,16 @@ public class FenetreGraphique extends JFrame implements ActionListener {
                                                 "Quitter",  //< Titre
                                                 JOptionPane.YES_NO_OPTION,  //< Option sur les boutons
                                                 JOptionPane.ERROR_MESSAGE) == JOptionPane.YES_OPTION ) //< Condition
-                                                
+
                 System.exit(0); //< Si elle est vérifiée alors on sort du programme
         }
-    }
 
+        if(evenement.getActionCommand().equals("load")){
+            JFileChooser select = new JFileChooser();
+            select.addChoosableFileFilter( new FileNameExtensionFilter("Fichier texte", "txt"));
+            int resultat = select.showOpenDialog(null);
+            if(resultat == JFileChooser.APPROVE_OPTION)
+                System.out.println("Fichier choisi: " + select.getSelectedFile().getAbsolutePath());
+        }
+    }
 }

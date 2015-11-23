@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class FenetreGraphique extends JFrame /*implements ActionListener*/ {
+public class FenetreGraphique extends JFrame implements ActionListener {
 
     public FenetreGraphique(String s){
 
@@ -32,6 +32,10 @@ public class FenetreGraphique extends JFrame /*implements ActionListener*/ {
         menu_fichier.add(itemFichier_sauvegarder);
         menu_fichier.add(new JSeparator());
         menu_fichier.add(itemFichier_quitter);
+
+        // Aciton effectuée sur l'item quitter
+        itemFichier_quitter.setActionCommand("exit");
+        itemFichier_quitter.addActionListener(this);
         //----------------------------------
 
         // Item de l'onglet couleur
@@ -47,15 +51,20 @@ public class FenetreGraphique extends JFrame /*implements ActionListener*/ {
         menu_couleur.add(itemCouleur_perso);
         //-----------------------------------
 
+        setVisible(true); //<Affichage de la fenêtre
+    }
 
-
-
-
-
-
-
-
-        setVisible(true);
+    public void actionPerformed(ActionEvent evenement)
+    {
+        if(evenement.getActionCommand().equals("exit")){
+            if( JOptionPane.showConfirmDialog(  null, //< icon
+                                                "Voulez vous vraiment quitter ?", //< Texte
+                                                "Quitter",  //< Titre
+                                                JOptionPane.YES_NO_OPTION,  //< Option sur les boutons
+                                                JOptionPane.ERROR_MESSAGE) == JOptionPane.YES_OPTION ) //< Condition
+                                                
+                System.exit(0); //< Si elle est vérifiée alors on sort du programme
+        }
     }
 
 }

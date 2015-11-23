@@ -8,13 +8,13 @@ public class FenetreGraphique extends JFrame{
 		setSize(300, 300);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
-		
+
 		setLocationRelativeTo(null);
 		setAlwaysOnTop(true);
-		
+
 		zoneDessin = new ZoneDessin();
 		setContentPane(zoneDessin);
-		
+
 		setVisible(true);
 	}
 }

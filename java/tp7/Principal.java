@@ -3,7 +3,6 @@ public class Principal {
         FenetreGraphique fenetre = new FenetreGraphique("The Bruh Window");
 
 
-
     }
 
 

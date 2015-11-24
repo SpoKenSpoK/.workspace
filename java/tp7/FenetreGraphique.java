@@ -43,7 +43,7 @@ public class FenetreGraphique extends JFrame implements ActionListener {
         // Action effectuée sur l'item charger
         itemFichier_charger.setActionCommand("load");
         itemFichier_charger.addActionListener(this);
-        
+
         // Action effectuée sur l'item sauvegarder
         itemFichier_sauvegarder.setActionCommand("save");
         itemFichier_sauvegarder.addActionListener(this);
@@ -61,11 +61,11 @@ public class FenetreGraphique extends JFrame implements ActionListener {
         menu_couleur.add(new JSeparator());
         menu_couleur.add(itemCouleur_perso);
         //-----------------------------------
-		
+
 		// Texte libre dans la fenêtre
 		JTextPane textPane = new JTextPane();
 		getContentPane().add(textPane);
-	
+
 		try{
 			StyledDocument doc = (StyledDocument) textPane.getDocument();
 
@@ -74,9 +74,9 @@ public class FenetreGraphique extends JFrame implements ActionListener {
 			StyleConstants.setForeground(style, Color.black);	// Ecriture noire
 			// Insertion dans le document
 			doc.insertString(doc.getLength(), "Un peu de texte", style);
-		} 
+		}
 		catch(BadLocationException e) {}
-			
+
 		//-----------------------------------
         setVisible(true); //<Affichage de la fenêtre
     }
@@ -84,7 +84,7 @@ public class FenetreGraphique extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent evenement)
     {
 		JTextPane textPane = new JTextPane();
-		
+
         if(evenement.getActionCommand().equals("exit")){
             if( JOptionPane.showConfirmDialog(  null, //< icon
                                                 "Voulez vous vraiment quitter ?", //< Texte
@@ -100,20 +100,20 @@ public class FenetreGraphique extends JFrame implements ActionListener {
             select.addChoosableFileFilter( new FileNameExtensionFilter("Fichier texte", "txt"));
             int resultat = select.showOpenDialog(null);
             if(resultat == JFileChooser.APPROVE_OPTION){
-                try {	
+                try {
 				getContentPane().add(textPane);
-				
+
                 System.out.println("Fichier choisi: " + select.getSelectedFile().getAbsolutePath());
 				File file = new File(select.getSelectedFile().getAbsolutePath());
 				textPane.setPage(file.toURI().toURL());
-				
+
 				JScrollPane scroll = new JScrollPane(textPane);
-				getContentPane().add(scroll);				
-				
-				} catch (IOException e) {}   
-			}   
+				getContentPane().add(scroll);
+
+				} catch (IOException e) {}
+			}
         }
-        
+
         if(evenement.getActionCommand().equals("save")){
 			JFileChooser select = new JFileChooser();
             select.addChoosableFileFilter( new FileNameExtensionFilter("Fichier texte", "txt"));
@@ -127,11 +127,11 @@ public class FenetreGraphique extends JFrame implements ActionListener {
 					writer.println(texte);
 					writer.close();
 				} catch (IOException e) { e.printStackTrace(); }
-				
+
 			}
 		}
-        
-        
-        
+
+
+
     }
 }

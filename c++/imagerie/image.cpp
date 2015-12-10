@@ -1,5 +1,6 @@
-#include "image.hpp"
-#include <stdexcept>		
+#include "image.h"
+#include <stdexcept>
+#include <iostream>
 
 GrayImage::GrayImage(ushort w, ushort h)
 	:width(w), height(h), array(0)
@@ -13,9 +14,9 @@ GrayImage::GrayImage(const GrayImage& source)
 	:width(source.width), height(source.height), array(new ubyte[width*height])
 { for(uint i=0; i<uint(width*height); ++i) array[i]=source.array[i]; }
 
-void GrayImage::clear(ubyte gray){ 
-	for(uint i=0; i<uint(width*height);++i) 
-		array[i]=gray; 
+void GrayImage::clear(ubyte gray){
+	for(uint i=0; i<uint(width*height);++i)
+		array[i]=gray;
 }
 
 void GrayImage::writeRAW(std::ostream& f){
@@ -50,9 +51,19 @@ GrayImage* GrayImage::readPGM(std::istream& is){
 	GrayImage::skip_comments(is);
 	is>>gray;
 	GrayImage::skip_line(is);
-	
+
 	GrayImage* i = new GrayImage(width, height);
-	is.read((char*)i->array, width*height);
+
+	if(s == "P5") is.read((char*)i->array, width*height);
+
+	else if(s == "P2"){
+		for (ushort j = 0; j < height; j++)
+			for (ushort k = 0; k < width; k++){
+				int u;
+				is >> u;
+				i->pixel(k, j) = ubyte(u);
+			}
+	}
 
 	return i;
 }
@@ -68,10 +79,10 @@ void GrayImage::rectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
 		pixel(i,y)=color;
 		pixel(i,y+h)=color;
 	}
-	
+
 	for(uint j=y+1; j < y+h ; ++j){
 		pixel(x,j)=color;
-		pixel(x+w,j)=color;	
+		pixel(x+w,j)=color;
 	}
 }
 
@@ -149,11 +160,11 @@ Color::~Color() {}
 //_______________________________________________________
 
 ColorImage::ColorImage(ushort w, ushort h)
-	:width(h), height(h), array(0)
+	:width(w), height(h), array(0)
 { array = new Color[width*height]; }
 
 void ColorImage::clear(Color color){
-	for(uint i=0; i<uint(width*height);++i) 
+	for(uint i=0; i<uint(width*height);++i)
 		array[i]= color;
 }
 
@@ -184,11 +195,15 @@ void ColorImage::writePPM(std::ostream& f) const{
 	f<<"# Commentaire 2 \n";
 	f<<"255\n"; // Valeur max des niveaux de gris
 	//> No more comments here
-	f.write((const char*)array, width*height);
+	//f.write((const char*)array, width*height);
+	for(ushort j=0; j<height; ++j)
+		for(ushort i=0; i<width; ++i){
+			f<<pixel(i,j).getRed()<<pixel(i,j).getGreen()<<pixel(i,j).getBlue();
+		}
 }
 
-/*
-GrayImage* GrayImage::readPGM(std::istream& is){
+
+ColorImage* ColorImage::readPPM(std::istream& is){
 	ushort width, height;
 	ubyte gray;
 	std::string s;
@@ -197,17 +212,41 @@ GrayImage* GrayImage::readPGM(std::istream& is){
 	GrayImage::skip_line(is);
 	GrayImage::skip_comments(is);
 	is>>width>>height;
+
 	GrayImage::skip_line(is);
 	GrayImage::skip_comments(is);
 	is>>gray;
 	GrayImage::skip_line(is);
-	
-	GrayImage* i = new GrayImage(width, height);
-	is.read((char*)i->array, width*height);
+
+	ColorImage* i = new ColorImage(width, height);
+
+	if(s == "P6"){
+		for (ushort j=0; j < height; j++)
+			for (ushort k=0; k < width; k++){
+				ubyte r,g,b;
+				r = is.get();
+				g = is.get();
+				b = is.get();
+
+				i->pixel(k,j).setRed(r);
+				i->pixel(k,j).setGreen(g);
+				i->pixel(k,j).setBlue(b);
+			}
+	}
+
+	/*else if(s == "P2"){
+		for (ushort j = 0; j < height; j++)
+			for (ushort k = 0; k < width; k++){
+				int u;
+				is >> u;
+				i->pixel(k, j) = ubyte(u);
+			}
+	}*/
 
 	return i;
 }
 
+/*
 void GrayImage::fillRectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
 	for(uint i=y; i< y+w ; ++i)
 		for(uint j=x; j < x+h; ++j)
@@ -219,20 +258,13 @@ void GrayImage::rectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
 		pixel(i,y)=color;
 		pixel(i,y+h)=color;
 	}
-	
+
 	for(uint j=y+1; j < y+h ; ++j){
 		pixel(x,j)=color;
-		pixel(x+w,j)=color;	
+		pixel(x+w,j)=color;
 	}
 }
 
 
 
 */
-
-
-
-
-
-
-

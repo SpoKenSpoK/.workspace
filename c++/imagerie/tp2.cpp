@@ -21,5 +21,8 @@ int main(){
 	chatdouble.close();
 	chat.close();
 
+    delete cat;
+    delete gato;
+
 	return 0;
 }

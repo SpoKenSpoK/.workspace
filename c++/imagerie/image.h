@@ -86,19 +86,16 @@ public:
 
 	// Dessin
 	void clear(Color c);	// Tous les pixels de l'image prennent une color RGB
-	//void fillRectangle(ushort x, ushort y, ushort w, ushort h, Color c);
-	//void rectangle(ushort x, ushort y, ushort w, ushort h, Color c);
+	void fillRectangle(ushort x, ushort y, ushort w, ushort h, Color c);
+	void rectangle(ushort x, ushort y, ushort w, ushort h, Color c);
 
 	// Ecriture & Lecture d'image
 	//void writeRAW(std::ostream& );	// Ecriture RAW 'brute'
 	void writePPM(std::ostream& ) const;	// Ecriture dans un fichier PGM
 	static ColorImage* readPPM(std::istream& ); // Lecture d'un fichier PGM
 
-	//static void skip_line(std::istream& );
-	//static void skip_comments(std::istream& );
-
-	//GrayImage* simpleScale(ushort w, ushort h) const;
-	//GrayImage* bilinearScale(ushort w, ushort h) const;
+	ColorImage* simpleScale(ushort w, ushort h) const;
+	ColorImage* bilinearScale(ushort w, ushort h) const;
 };
 
 

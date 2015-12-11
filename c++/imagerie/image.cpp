@@ -224,7 +224,7 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 		for (ushort j=0; j < height; j++)
 			for (ushort k=0; k < width; k++){
 				ubyte r,g,b;
-				r = is.get();
+				r = is.get();	// Lit des chars
 				g = is.get();
 				b = is.get();
 
@@ -234,26 +234,29 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 			}
 	}
 
-	/*else if(s == "P2"){
+	else if(s == "P3"){
 		for (ushort j = 0; j < height; j++)
 			for (ushort k = 0; k < width; k++){
-				int u;
-				is >> u;
-				i->pixel(k, j) = ubyte(u);
+				int r,g,b;
+				is >> r >> g >> b;	// Lit des ASCII
+
+				i->pixel(k, j) = ubyte(r);
+				i->pixel(k, j) = ubyte(g);
+				i->pixel(k, j) = ubyte(b);
 			}
-	}*/
+	}
 
 	return i;
 }
 
-/*
-void GrayImage::fillRectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
+
+void ColorImage::fillRectangle(ushort x, ushort y, ushort w, ushort h, Color color){
 	for(uint i=y; i< y+w ; ++i)
 		for(uint j=x; j < x+h; ++j)
 			pixel(i,j)=color;
 }
 
-void GrayImage::rectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
+void ColorImage::rectangle(ushort x, ushort y, ushort w, ushort h, Color color){
 	for(uint i=x; i < uint(x+w+1) ; ++i){
 		pixel(i,y)=color;
 		pixel(i,y+h)=color;
@@ -265,6 +268,56 @@ void GrayImage::rectangle(ushort x, ushort y, ushort w, ushort h, ubyte color){
 	}
 }
 
+ColorImage* ColorImage::simpleScale(ushort w, ushort h) const{
+	ColorImage* iprime = new ColorImage(w,h);
 
+	for(ushort yprime = 0; yprime<h; ++yprime)
+		for(ushort xprime = 0; xprime<w; ++xprime){
+			double x = (double(xprime)/w)* width;
+			double y = (double(yprime)/h)* height;
 
-*/
+			ushort xi=ushort(x);
+			ushort yi=ushort(y);
+
+			iprime->pixel(xprime, yprime) = pixel(xi, yi);
+		}
+
+	return iprime;
+}
+
+ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
+	ColorImage* iprime = new ColorImage(w,h);
+
+	for(ushort yprime=0; yprime<h; ++yprime)
+		for(ushort xprime=0; xprime<w; ++xprime){
+			double x = (double(xprime)/w)* width-0.5;
+			double y = (double(yprime)/h)* height+0.5;
+
+			ushort xi=ushort(x);
+			ushort yi=ushort(y);
+
+			ushort xiPone = (xi+1 >= width ? xi : xi+1);
+			ushort yiPone = (yi+1 >= height ? yi : yi+1);
+
+			double lambdA = x - xi;
+			double mU = y - yi;
+
+			iprime->pixel(xprime, yprime).setRed( (1-lambdA)*(1-mU)*pixel(xi, yi).getRed()
+										 		+(1-lambdA)*mU*pixel(xi, yiPone).getRed()
+										 		+lambdA*(1-mU)*pixel(xiPone, yi).getRed()
+										 		+lambdA*mU*pixel(xiPone, yiPone).getRed() );
+
+			iprime->pixel(xprime, yprime).setGreen( (1-lambdA)*(1-mU)*pixel(xi, yi).getGreen()
+										 		+(1-lambdA)*mU*pixel(xi, yiPone).getGreen()
+										 		+lambdA*(1-mU)*pixel(xiPone, yi).getGreen()
+										 		+lambdA*mU*pixel(xiPone, yiPone).getGreen() );
+
+			iprime->pixel(xprime, yprime).setBlue( (1-lambdA)*(1-mU)*pixel(xi, yi).getBlue()
+										 		+(1-lambdA)*mU*pixel(xi, yiPone).getBlue()
+										 		+lambdA*(1-mU)*pixel(xiPone, yi).getBlue()
+										 		+lambdA*mU*pixel(xiPone, yiPone).getBlue() );
+
+		}
+
+	return iprime;
+}

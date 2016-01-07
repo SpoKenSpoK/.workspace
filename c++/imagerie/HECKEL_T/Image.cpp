@@ -1,6 +1,17 @@
-#include "image.h"
-#include <stdexcept>
+#include "Image.h"
 #include <iostream>
+#include <stdexcept>
+#include <stdio.h>
+#include <setjmp.h>
+extern "C" {
+    #include <jpeglib.h>
+}
+
+const char *identifier="heckel_t";
+const char *informations=
+ "METTEZ ICI VOS COMMENTAIRES\n"
+ "Éventuellement sur plusieurs lignes.\n"
+ "En n'oubliant pas les guillemets, ni les backslash-n pour passer à la ligne.\n";
 
 GrayImage::GrayImage(ushort w, ushort h)
 	:width(w), height(h), array(0)
@@ -176,18 +187,6 @@ ColorImage::ColorImage(const ColorImage& source)
 	:width(source.width), height(source.height), array(new Color[width*height])
 { for(uint i=0; i<uint(width*height); ++i) array[i]=source.array[i]; }
 
-
-/*
-void GrayImage::writeRAW(std::ostream& f){
-	ubyte tmp[4];
-	// poids faibles  |  poids forts
-	tmp[0]=width%256;	tmp[1]=width>>8;
-	tmp[2]=height%256;	tmp[3]=height>>8;
-	f.write((const char*)tmp, 4);
-	f.write((const char*)array, width*height);
-}
-*/
-
 void ColorImage::writePPM(std::ostream& f) const{
 	f<<"P6\n"; // Magic Number
 	f<<"# Commentaire \n";
@@ -195,11 +194,10 @@ void ColorImage::writePPM(std::ostream& f) const{
 	f<<"# Commentaire 2 \n";
 	f<<"255\n"; // Valeur max des niveaux de gris
 	//> No more comments here
-	//f.write((const char*)array, width*height);
 	for(ushort j=0; j<height; ++j)
-		for(ushort i=0; i<width; ++i){
+		for(ushort i=0; i<width; ++i)
 			f<<pixel(i,j).getRed()<<pixel(i,j).getGreen()<<pixel(i,j).getBlue();
-		}
+
 }
 
 
@@ -245,6 +243,8 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 				i->pixel(k, j) = ubyte(b);
 			}
 	}
+	else std::runtime_error("Wrong image format");
+
 
 	return i;
 }
@@ -325,4 +325,50 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 		}
 
 	return iprime;
+}
+
+void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
+    struct jpeg_compress_struct cinfo; // Paramètres de notre image JPEG
+	//struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
+
+    JSAMPLE * image_buffer;
+    image_buffer = (JSAMPLE*) array;
+    FILE * outfile;		/* target file */
+    JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
+    int row_stride;		/* physical row width in image buffer */
+
+    //cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_compress(&cinfo);
+    /* Now we can initialize the JPEG compression object. */
+
+    if ((outfile = fopen(fname, "wb")) == NULL) {
+        throw std::runtime_error("Image can't open");
+    }
+
+	jpeg_stdio_dest(&cinfo, outfile);
+
+    cinfo.image_width = width; 	/* image width and height, in pixels */
+    cinfo.image_height = height;
+    cinfo.input_components = 3;		/* # of color components per pixel */
+    cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+    /* TRUE ensures that we will write a complete interchange-JPEG file.*/
+    std::cerr<<"debug"<<std::endl;
+    jpeg_start_compress(&cinfo, TRUE); //////// ->>>>>>>>>>>>>>>< ça CRASH ICI
+    jpeg_set_quality(&cinfo, quality, TRUE);
+
+    row_stride = width * 3;	/* JSAMPLEs per row in image_buffer */
+
+    while (cinfo.next_scanline < cinfo.image_height) {
+        /* jpeg_write_scanlines expects an array of pointers to scanlines.
+         * Here the array is only one element long, but you could pass
+         * more than one scanline at a time if that's more convenient.
+         */
+        row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
+        (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    //jpeg_destroy_compress(&cinfo);
+    jpeg_finish_compress(&cinfo);
+    /* After finish_compress, we can close the output file. */
+    fclose(outfile);
+    jpeg_destroy_compress(&cinfo);
 }

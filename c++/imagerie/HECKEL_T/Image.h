@@ -3,6 +3,9 @@
 
 #include <fstream>
 
+#define CORR_PGMASCII
+#define CORR_PPMASCII
+
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned char ubyte;
@@ -90,19 +93,13 @@ public:
 	void rectangle(ushort x, ushort y, ushort w, ushort h, Color c);
 
 	// Ecriture & Lecture d'image
-	//void writeRAW(std::ostream& );	// Ecriture RAW 'brute'
-	void writePPM(std::ostream& ) const;	// Ecriture dans un fichier PGM
-	static ColorImage* readPPM(std::istream& ); // Lecture d'un fichier PGM
+	void writePPM(std::ostream& ) const;	// Ecriture dans un fichier PPM
+	static ColorImage* readPPM(std::istream& ); // Lecture d'un fichier PPM
 
 	ColorImage* simpleScale(ushort w, ushort h) const;
 	ColorImage* bilinearScale(ushort w, ushort h) const;
+
+	void writeJPEG(const char*, unsigned int quality=75 ) const;
 };
-
-
-
-
-
-
-
 
 #endif //IMAGE_HPP

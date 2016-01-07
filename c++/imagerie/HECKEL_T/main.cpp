@@ -1,5 +1,5 @@
 #include <iostream>
-#include "image.h"
+#include "Image.h"
 
 int main(){
 	std::ifstream chat("chat_petit.ppm", std::ios::binary);

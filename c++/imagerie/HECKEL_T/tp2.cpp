@@ -1,5 +1,8 @@
 #include <iostream>
-#include "image.h"
+#include "Image.h"
+
+#include <iomanip>
+#include <sstream>
 
 int main(){
 	std::ifstream chat("chat_petit.ppm", std::ios::binary);
@@ -23,6 +26,15 @@ int main(){
 
 	gato = gato->simpleScale(823, 400);
 	gato->writePPM(chatsimple);
+
+	const char* imgJpeg = "Image.jpeg";
+	cat->writeJPEG(imgJpeg);
+
+	/*for(unsigned int quality=0;quality<=100;quality+=5)  {
+		std::ostringstream oss; // Variable pour former le nom de chaque fichier.
+		oss << "out_" << std::setfill('0') << std::setw(3) << quality << ".jpg";
+		im->writeJPEG(oss.str().c_str(),quality);
+	}*/
 
 	chatsimple.close();
 	chatdouble.close();

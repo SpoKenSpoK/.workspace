@@ -331,8 +331,7 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     struct jpeg_compress_struct cinfo; // Paramètres de notre image JPEG
 	//struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
 
-    JSAMPLE * image_buffer;
-    image_buffer = (JSAMPLE*) array;
+    JSAMPLE * image_buffer = (JSAMPLE*) array;
     FILE * outfile;		/* target file */
     JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
     int row_stride;		/* physical row width in image buffer */
@@ -353,22 +352,18 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
     /* TRUE ensures that we will write a complete interchange-JPEG file.*/
     std::cerr<<"debug"<<std::endl;
-    jpeg_start_compress(&cinfo, TRUE); //////// ->>>>>>>>>>>>>>>< ça CRASH ICI
-    jpeg_set_quality(&cinfo, quality, TRUE);
 
-    row_stride = width * 3;	/* JSAMPLEs per row in image_buffer */
+    jpeg_set_quality(&cinfo, quality, TRUE);
+    jpeg_start_compress(&cinfo, TRUE);
+
+    row_stride = width * 3;
 
     while (cinfo.next_scanline < cinfo.image_height) {
-        /* jpeg_write_scanlines expects an array of pointers to scanlines.
-         * Here the array is only one element long, but you could pass
-         * more than one scanline at a time if that's more convenient.
-         */
         row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
         (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
     //jpeg_destroy_compress(&cinfo);
     jpeg_finish_compress(&cinfo);
-    /* After finish_compress, we can close the output file. */
     fclose(outfile);
     jpeg_destroy_compress(&cinfo);
 }

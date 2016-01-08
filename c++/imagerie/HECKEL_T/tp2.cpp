@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
+
 int main(){
 	std::ifstream chat("chat_petit.ppm", std::ios::binary);
 	std::ifstream chatd("chat_petit.ppm", std::ios::binary);

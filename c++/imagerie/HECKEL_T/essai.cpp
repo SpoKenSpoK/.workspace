@@ -40,3 +40,4 @@ int main(int argc,char *argv[])
   { cerr<< "Exception const char* :"<<e<< endl; }
  return 0;
 }
+

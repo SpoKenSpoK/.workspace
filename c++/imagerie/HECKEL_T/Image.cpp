@@ -321,7 +321,6 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 										 		+(1-lambdA)*mU*pixel(xi, yiPone).getBlue()
 										 		+lambdA*(1-mU)*pixel(xiPone, yi).getBlue()
 										 		+lambdA*mU*pixel(xiPone, yiPone).getBlue() );
-
 		}
 
 	return iprime;
@@ -329,14 +328,12 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 
 void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     struct jpeg_compress_struct cinfo; // Paramètres de notre image JPEG
-	//struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
+	struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
 
-    JSAMPLE * image_buffer = (JSAMPLE*) array;
     FILE * outfile;		/* target file */
     JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
-    int row_stride;		/* physical row width in image buffer */
 
-    //cinfo.err = jpeg_std_error(&jerr);
+    cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
     /* Now we can initialize the JPEG compression object. */
 
@@ -350,19 +347,18 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     cinfo.image_height = height;
     cinfo.input_components = 3;		/* # of color components per pixel */
     cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
-    /* TRUE ensures that we will write a complete interchange-JPEG file.*/
-    std::cerr<<"debug"<<std::endl;
-
+    
+    jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, quality, TRUE);
     jpeg_start_compress(&cinfo, TRUE);
 
-    row_stride = width * 3;
+    int row_stride = width;
 
     while (cinfo.next_scanline < cinfo.image_height) {
-        row_pointer[0] = & image_buffer[cinfo.next_scanline * row_stride];
+        row_pointer[0] = (JSAMPROW) &array[cinfo.next_scanline * row_stride] ;
         (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
-    //jpeg_destroy_compress(&cinfo);
+
     jpeg_finish_compress(&cinfo);
     fclose(outfile);
     jpeg_destroy_compress(&cinfo);

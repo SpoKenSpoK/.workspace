@@ -3,7 +3,6 @@
 
 #include <fstream>
 
-
 #define CORR_PGMASCII
 #define CORR_PPMASCII
 

@@ -9,8 +9,8 @@ extern "C" {
 
 const char *identifier="heckel_t";
 const char *informations=
- "METTEZ ICI VOS COMMENTAIRES\n"
- "Éventuellement sur plusieurs lignes.\n"
+ "Concernant le décalage qui pouvait operer entre bilinearScale et simpleScale :\n"
+ "Ce dernier est minimisé en prenant la valeur absolu de mU\n"
  "En n'oubliant pas les guillemets, ni les backslash-n pour passer à la ligne.\n";
 
 GrayImage::GrayImage(ushort w, ushort h)
@@ -75,6 +75,7 @@ GrayImage* GrayImage::readPGM(std::istream& is){
 				i->pixel(k, j) = ubyte(u);
 			}
 	}
+    else throw std::runtime_error("Wrong image format");
 
 	return i;
 }
@@ -243,7 +244,7 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 				i->pixel(k, j) = ubyte(b);
 			}
 	}
-	else std::runtime_error("Wrong image format");
+	else throw std::runtime_error("Wrong image format");
 
 
 	return i;
@@ -347,7 +348,7 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     cinfo.image_height = height;
     cinfo.input_components = 3;		/* # of color components per pixel */
     cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
-    
+
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality(&cinfo, quality, TRUE);
     jpeg_start_compress(&cinfo, TRUE);

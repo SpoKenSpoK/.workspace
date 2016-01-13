@@ -353,14 +353,57 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     jpeg_set_quality(&cinfo, quality, TRUE);
     jpeg_start_compress(&cinfo, TRUE);
 
-    int row_stride = width;
+    unsigned int row_stride = width;
 
     while (cinfo.next_scanline < cinfo.image_height) {
-        row_pointer[0] = (JSAMPROW) &array[cinfo.next_scanline * row_stride] ;
+        row_pointer[0] = (JSAMPROW) &array[cinfo.next_scanline * row_stride];
         (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
 
     jpeg_finish_compress(&cinfo);
     fclose(outfile);
     jpeg_destroy_compress(&cinfo);
+}
+
+ColorImage* ColorImage::readJPEG(const char* fname){
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+
+    FILE * infile;		/* source file */
+
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_decompress(&cinfo);
+
+    if ((infile = fopen(fname, "rb")) == NULL)
+        throw std::runtime_error("Impossible to open the picture");
+
+    jpeg_stdio_src(&cinfo, infile);
+    jpeg_read_header(&cinfo, TRUE);
+    jpeg_start_decompress(&cinfo);
+
+    ushort width = cinfo.output_width;
+    ushort height = cinfo.output_height;
+
+    ColorImage* jpegout = new ColorImage(width, height);
+
+    unsigned int row_stride = cinfo.output_width * cinfo.output_components;
+    JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)
+		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+
+    while (cinfo.output_scanline < cinfo.output_height){
+        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+        for(ushort x=0; x < width; ++x){
+            /** cinfo.output_scanline-1 car un décalage de 1 pixel apparaît en haut de l'image */
+            jpegout->pixel(x,cinfo.output_scanline-1).setRed( buffer[0][cinfo.output_components * x]);
+            jpegout->pixel(x,cinfo.output_scanline-1).setGreen( buffer[0][cinfo.output_components * x+1]);
+            jpegout->pixel(x,cinfo.output_scanline-1).setBlue( buffer[0][cinfo.output_components * x+2]);
+            /** idée trouvée sur le net ( surtout le buffer[0][...] ) : http://stackoverflow.com/questions/694080/how-do-i-read-jpeg-and-png-pixels-in-c-on-linux */
+        }
+    }
+
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+    fclose(infile);
+
+    return jpegout;
 }

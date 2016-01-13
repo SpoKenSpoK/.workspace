@@ -5,6 +5,7 @@
 
 #define CORR_PGMASCII
 #define CORR_PPMASCII
+#define CORR_READCOLORJPEG
 
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -100,6 +101,7 @@ public:
 	ColorImage* bilinearScale(ushort w, ushort h) const;
 
 	void writeJPEG(const char*, unsigned int quality=75 ) const;
+	static ColorImage* readJPEG(const char* );
 };
 
 #endif //IMAGE_HPP

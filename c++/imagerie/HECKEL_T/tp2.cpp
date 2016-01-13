@@ -39,8 +39,14 @@ int main(){
 	gray = gray->simpleScale(1500,1000);
 	gray->writePGM(wgray);
 
-	const char* imgJpeg = "Image.jpeg";
+	const char* imgJpeg = "Image.jpg";
 	im->writeJPEG(imgJpeg);
+
+	const char* jpegin = "out_100.jpg";
+	ColorImage* picjpegin = ColorImage::readJPEG(jpegin);
+
+	const char* jpegout = "test_jpeg_out.jpg";
+	picjpegin->writeJPEG(jpegout,100);
 
 	for(unsigned int quality=0;quality<=100;quality+=5)  {
 		std::ostringstream oss; // Variable pour former le nom de chaque fichier.

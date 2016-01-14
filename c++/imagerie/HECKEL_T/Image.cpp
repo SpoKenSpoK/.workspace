@@ -139,8 +139,8 @@ GrayImage* GrayImage::bilinearScale(ushort w, ushort h) const{
 
 	for(ushort yprime=0; yprime<h; ++yprime)
 		for(ushort xprime=0; xprime<w; ++xprime){
-			double x = (double(xprime)/w)* width;
-			double y = (double(yprime)/h)* height;
+			double x = ((double(xprime+0.5)/w)* width)-0.5;
+			double y = ((double(yprime+0.5)/h)* height)-0.5;
 
 			ushort xi=ushort(x);
 			ushort yi=ushort(y);
@@ -150,6 +150,9 @@ GrayImage* GrayImage::bilinearScale(ushort w, ushort h) const{
 
 			double lambdA = x - xi;
 			double mU = y - yi;
+
+            if(mU < 0) mU *= -1;
+            if(lambdA < 0) lambdA *= -1;
 
 			iprime->pixel(xprime, yprime)=(1-lambdA)*(1-mU)*pixel(xi, yi)
 										 +(1-lambdA)*mU*pixel(xi, yiPone)

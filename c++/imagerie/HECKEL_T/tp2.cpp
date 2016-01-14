@@ -39,7 +39,7 @@ int main(int argc,char *argv[])
    h.open("chat.pgm", std::ios::binary);
    k.open("chat_simple.pgm", std::ios::binary);
    j = GrayImage::readPGM(h);
-   GrayImage* j2 = j->simpleScale(1000,1000);
+   GrayImage* j2 = j->simpleScale(9999,9999);
    j2->writePGM(k);
    delete j;
    delete j2;
@@ -50,7 +50,7 @@ int main(int argc,char *argv[])
    h.open("chat.pgm", std::ios::binary);
    k.open("chat_bilinear.pgm", std::ios::binary);
    j = GrayImage::readPGM(h);
-   j2 = j->bilinearScale(1000,1000);
+   j2 = j->bilinearScale(9999,9999);
    j2->writePGM(k);
    delete j;
    delete j2;
@@ -127,7 +127,7 @@ int main(int argc,char *argv[])
 
 
    //redim simple
-   f.open("chat.ppm", std::ios::binary);
+   f.open("chat_petit.ppm", std::ios::binary);
    g.open("chat_simple.ppm", std::ios::binary);
    i = ColorImage::readPPM(f);
    ColorImage* i2 = i->simpleScale(1000,1000);
@@ -138,7 +138,7 @@ int main(int argc,char *argv[])
    f.close();
 
    //redim bilinear
-   f.open("chat.ppm", std::ios::binary);
+   f.open("chat_petit.ppm", std::ios::binary);
    g.open("chat_bilinear.ppm", std::ios::binary);
    i = ColorImage::readPPM(f);
    i2 = i->bilinearScale(1000,1000);

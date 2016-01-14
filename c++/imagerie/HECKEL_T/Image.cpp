@@ -7,7 +7,7 @@ extern "C" {
     #include <jpeglib.h>
 }
 
-const char *identifier="heckel_t";
+const char *identifier="HECKEL Thibault";
 const char *informations=
  "J'ai traite le probleme de decalage qui pouvait operer entre bilinearScale et simpleScale dans la colorImage.\n"
   "Celui-ci est explique dans les commentaires a l'endroit voulu. \n";
@@ -303,7 +303,7 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 			double mU = y - yi;
 
 			if(lambdA < 0) lambdA *= -1; // En effectuant le premier décalage sur x et y des pixels apparaissent blanc, cela est du au fait qu'ils soient devenu négatif
-			if(mU < 0) mU *= -1;         // Pour y répondre il suffit de multiplier par -1 (mettre au carré, puis en faire la racine carré revient au même) pour obtenir la valeur absolue de lambdA ou mU
+			if(mU < 0) mU *= -1;         // Pour y répondre il suffit de multiplier par -1 (mettre au carré, puis en faire la racine carré revient au même) pour obtenir la valeur absolue de lambdA et mU
             // C'est avec cette valeur qu'au final nous allons travailler. Après application des changements les pixels précédemments blanc ont disparu.
 
 			iprime->pixel(xprime, yprime).setRed( (1-lambdA)*(1-mU)*pixel(xi, yi).getRed()

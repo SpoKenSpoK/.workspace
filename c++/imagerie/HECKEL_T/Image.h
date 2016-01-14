@@ -101,11 +101,11 @@ public:
 	ColorImage* simpleScale(ushort w, ushort h) const;
 	ColorImage* bilinearScale(ushort w, ushort h) const;
 
-	void writeJPEG(const char*, unsigned int quality=75 ) const;
-	static ColorImage* readJPEG(const char* );
+	void writeJPEG(const char*, unsigned int quality=75 ) const; // Ecriture JPEG
+	static ColorImage* readJPEG(const char* );	// Lecture JPEG
 
-	void writeTGA(std::ostream&, bool =true ) const;
-	static ColorImage* readTGA(std::ifstream& );
+	void writeTGA(std::ostream&, bool =true ) const; // Ecriture TGA non-compressé
+	static ColorImage* readTGA(std::ifstream& ); // Lecture TGA non-compressé
 };
 
 #endif //IMAGE_HPP

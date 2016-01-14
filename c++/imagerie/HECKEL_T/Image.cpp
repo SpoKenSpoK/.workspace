@@ -290,8 +290,8 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 
 	for(ushort yprime=0; yprime<h; ++yprime)
 		for(ushort xprime=0; xprime<w; ++xprime){
-			double x = ((double(xprime+0.5)/w)* width)-0.5;
-			double y = ((double(yprime+0.5)/h)* height)-0.5;
+			double x = ((double(xprime+0.5)/w)* width)-0.5; // Un décalage de positions des pixels entre le bilinearScale et simpleScale apparait visuellement sur les deux images
+			double y = ((double(yprime+0.5)/h)* height)-0.5; // Pour le réduire il nous est possible d'ajouter 0.5 d'un côté puis de l'enlever sur la fin du calcul
 
 			ushort xi=ushort(x);
 			ushort yi=ushort(y);
@@ -302,8 +302,9 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 			double lambdA = x - xi;
 			double mU = y - yi;
 
-			if(lambdA < 0) lambdA *= -1;
-			if(mU < 0) mU *= -1;
+			if(lambdA < 0) lambdA *= -1; // En effectuant le premier décalage sur x et y des pixels apparaissent blanc, cela est du au fait qu'ils soient devenu négatif
+			if(mU < 0) mU *= -1;         // Pour y répondre il suffit de multiplier par -1 (mettre au carré, puis en faire la racine carré revient au même) pour obtenir la valeur absolue de lambdA ou mU
+            // C'est avec cette valeur qu'au final nous allons travailler. Après application des changements les pixels précédemments blanc ont disparu.
 
 			iprime->pixel(xprime, yprime).setRed( (1-lambdA)*(1-mU)*pixel(xi, yi).getRed()
 										 		+(1-lambdA)*mU*pixel(xi, yiPone).getRed()
@@ -326,15 +327,15 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 
 void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     struct jpeg_compress_struct cinfo; // Paramètres de notre image JPEG
-	struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
+	struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion : "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
 
-    FILE * outfile;
+    FILE * outfile; // Fichier de sortie
     JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
 
     cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
 
-    if ((outfile = fopen(fname, "wb")) == NULL) {
+    if ((outfile = fopen(fname, "wb")) == NULL) {       // Ouverture en écriture
         throw std::runtime_error("Image can't open.");
     }
 
@@ -365,7 +366,7 @@ ColorImage* ColorImage::readJPEG(const char* fname){
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
 
-    FILE * infile;		/* source file */
+    FILE * infile;
 
     cinfo.err = jpeg_std_error(&jerr);
     jpeg_create_decompress(&cinfo);
@@ -377,13 +378,13 @@ ColorImage* ColorImage::readJPEG(const char* fname){
     jpeg_read_header(&cinfo, TRUE);
     jpeg_start_decompress(&cinfo);
 
-    ushort width = cinfo.output_width;
+    ushort width = cinfo.output_width; // Récupération de la hauteur et largeur de l'image ouverte
     ushort height = cinfo.output_height;
 
     ColorImage* jpegout = new ColorImage(width, height);
 
     unsigned int row_stride = cinfo.output_width * cinfo.output_components;
-    JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)
+    JSAMPARRAY buffer = (*cinfo.mem->alloc_sarray)                  /**Je ne sais pas exactement ce que produit en mémoire ce codes */
 		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
     while (cinfo.output_scanline < cinfo.output_height){
@@ -423,7 +424,6 @@ void ColorImage::writeTGA(std::ostream& f, bool rle) const{
     offset[6] = 0;
     offset[7] = 0;
 
-    // (0;0) représente le coin en bas à gauche de notre image
     offset[8] = 0; // Origine X de notre image
     offset[9] = 0;
     offset[10] = 0; // Origine Y de notre image
@@ -445,11 +445,11 @@ void ColorImage::writeTGA(std::ostream& f, bool rle) const{
 	offset[15] = (height >> 8)%256;
 
 	offset[16] = 24; // Nombre de bits dans un pixel, ici 3*8 = 24 => nous travaillons avec du Targa 24
-    offset[17] = 0; // Nous permet notamment de choisir l'origine de notre image. J'ai choisi ici de rester en bas à gauche
+    offset[17] = 0; // Nous permet notamment de choisir l'origine de notre image. J'ai choisi ici de rester en bas à gauche.
 
     f.write((char*)offset, 18); // Ecriture des paramètres
 
-	// Création d'un tableau temporaire pour écrire en un seul coup un pixel
+	// Création d'un tableau temporaire pour écrire d'un seul coup un pixel
 	ubyte tmp[3];
 
     // Notre image se dessine ici bien de bas en haut
@@ -465,24 +465,20 @@ void ColorImage::writeTGA(std::ostream& f, bool rle) const{
 ColorImage* ColorImage::readTGA(std::ifstream& is){
 	ubyte offset[18];
 	is.read((char*)offset,18);
-	ubyte id_field = offset[0];
-	ubyte data_type = offset[2];
 	ushort width = offset[12] + (offset[13]*256);
 	ushort height = offset[14] + (offset[15]*256);
+
 	ColorImage* outtga = new ColorImage(width, height);
 
-    std::cerr<<(int)offset[16]<<std::endl;
-
     if( offset[16] == 24){
-        is.read(NULL, id_field);
-    	if(data_type == 2){
+    	if(offset[2] == 2){
     		ubyte tmp[3];
     		for(int i=0; i<height; ++i)
     			for(int j=0; j<width; ++j){
-    				is.read((char*)tmp, 3);
-    				outtga->pixel(j,i).setRed( (ubyte)tmp[2] );
-    				outtga->pixel(j,i).setGreen( (ubyte)tmp[1] );
-    				outtga->pixel(j,i).setBlue( (ubyte)tmp[0] );
+    				is.read((char*)tmp, 3); // Lecture des trois couleur RGB du pixel (On avance 3 par 3)
+    				outtga->pixel(j,i).setRed( tmp[2] );
+    				outtga->pixel(j,i).setGreen( tmp[1] );
+    				outtga->pixel(j,i).setBlue( tmp[0] );
     			}
     	}
         else

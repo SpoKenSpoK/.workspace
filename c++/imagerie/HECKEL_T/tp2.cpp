@@ -10,20 +10,24 @@ int main(){
 	std::ifstream chat("chat_petit.ppm", std::ios::binary);
 	std::ifstream chatd("chat_petit.ppm", std::ios::binary);
 	std::ifstream image("chat.ppm", std::ios::binary);
+	std::ifstream chattgar("chat.tga", std::ios::binary);
 
 	ColorImage* cat = ColorImage::readPPM(chat);
 	ColorImage* gato = ColorImage::readPPM(chatd);
 	ColorImage* im = ColorImage::readPPM(image);
 	GrayImage* gray = GrayImage::readPGM(chatgray);
+	ColorImage* tga = ColorImage::readTGA(chattgar);
 
 	std::ofstream chatsimple("chatsimple.ppm", std::ios::binary);
 	std::ofstream chatdouble("chatdouble.ppm", std::ios::binary);
 	std::ofstream chatrec("chatrectangle.ppm", std::ios::binary);
 	std::ofstream wgray("chatgray.pgm", std::ios::binary);
+	std::ofstream chattga("chatchat.tga", std::ios::binary);
+	std::ofstream chattgareaded("chatreaded.tga", std::ios::binary);
 
-	Color color(250,0,0);
-	Color coloro(0,250,0);
-	Color colorp(0,0,250);
+	Color color(255,0,0);
+	Color coloro(0,255,0);
+	Color colorp(0,0,255);
 	im->rectangle(5,5,310,230,color);
 	im->rectangle(10,10,300,220,coloro);
 	im->rectangle(15,15,290,210,colorp);
@@ -54,6 +58,10 @@ int main(){
 		im->writeJPEG(oss.str().c_str(),quality);
 	}
 
+	picjpegin->writeTGA(chattga,false);
+	tga->writeTGA(chattgareaded,false);
+
+
 	chatsimple.close();
 	chatdouble.close();
 	chatrec.close();
@@ -67,6 +75,7 @@ int main(){
     delete gato;
 	delete im;
 	delete gray;
+	delete tga;
 
 	return 0;
 }

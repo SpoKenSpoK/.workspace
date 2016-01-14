@@ -6,6 +6,7 @@
 #define CORR_PGMASCII
 #define CORR_PPMASCII
 #define CORR_READCOLORJPEG
+#define CORR_READCOLORTGA
 
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -102,6 +103,9 @@ public:
 
 	void writeJPEG(const char*, unsigned int quality=75 ) const;
 	static ColorImage* readJPEG(const char* );
+
+	void writeTGA(std::ostream&, bool =true ) const;
+	static ColorImage* readTGA(std::ifstream& );
 };
 
 #endif //IMAGE_HPP

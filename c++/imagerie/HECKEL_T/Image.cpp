@@ -9,9 +9,8 @@ extern "C" {
 
 const char *identifier="heckel_t";
 const char *informations=
- "Concernant le décalage qui pouvait operer entre bilinearScale et simpleScale :\n"
- "Ce dernier est minimisé en prenant la valeur absolu de mU\n"
- "En n'oubliant pas les guillemets, ni les backslash-n pour passer à la ligne.\n";
+ "J'ai traite le probleme de decalage qui pouvait operer entre bilinearScale et simpleScale dans la colorImage.\n"
+  "Celui-ci est explique dans les commentaires a l'endroit voulu. \n";
 
 GrayImage::GrayImage(ushort w, ushort h)
 	:width(w), height(h), array(0)
@@ -75,7 +74,7 @@ GrayImage* GrayImage::readPGM(std::istream& is){
 				i->pixel(k, j) = ubyte(u);
 			}
 	}
-    else throw std::runtime_error("Wrong image format");
+    else throw std::runtime_error("Wrong image format.");
 
 	return i;
 }
@@ -239,13 +238,12 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 				int r,g,b;
 				is >> r >> g >> b;	// Lit des ASCII
 
-				i->pixel(k, j) = ubyte(r);
+				i->pixel(k, j) = ubyte(r); // Convertion en unsigned char
 				i->pixel(k, j) = ubyte(g);
 				i->pixel(k, j) = ubyte(b);
 			}
 	}
-	else throw std::runtime_error("Wrong image format");
-
+	else throw std::runtime_error("Wrong image format.");
 
 	return i;
 }
@@ -274,7 +272,6 @@ ColorImage* ColorImage::simpleScale(ushort w, ushort h) const{
 
 	for(ushort yprime = 0; yprime<h; ++yprime)
 		for(ushort xprime = 0; xprime<w; ++xprime){
-
 
 			double x = (double(xprime)/w)* width;
 			double y = (double(yprime)/h)* height;
@@ -331,15 +328,14 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
     struct jpeg_compress_struct cinfo; // Paramètres de notre image JPEG
 	struct jpeg_error_mgr jerr; // Vérifie le bon fonctionnement de la compréssion "Error Handler", pas de traduction française trouvée pour mieux décrire ce mot.
 
-    FILE * outfile;		/* target file */
-    JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
+    FILE * outfile;
+    JSAMPROW row_pointer[1];    /* pointer to JSAMPLE row[s] */
 
     cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
-    /* Now we can initialize the JPEG compression object. */
 
     if ((outfile = fopen(fname, "wb")) == NULL) {
-        throw std::runtime_error("Image can't open");
+        throw std::runtime_error("Image can't open.");
     }
 
 	jpeg_stdio_dest(&cinfo, outfile);
@@ -375,7 +371,7 @@ ColorImage* ColorImage::readJPEG(const char* fname){
     jpeg_create_decompress(&cinfo);
 
     if ((infile = fopen(fname, "rb")) == NULL)
-        throw std::runtime_error("Impossible to open the picture");
+        throw std::runtime_error("Impossible to open the picture.");
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
@@ -406,4 +402,94 @@ ColorImage* ColorImage::readJPEG(const char* fname){
     fclose(infile);
 
     return jpegout;
+}
+
+
+void ColorImage::writeTGA(std::ostream& f, bool rle) const{
+    if(rle)
+        throw std::runtime_error("RLE not done yet sorry");
+
+    // Soit un tableau de ubyte nommé "offset" représentant les composants de l'image "Unmapped RGB"
+    // Nous pouvons compter 18 éléments, ayant chacun une longueur différente
+    ubyte offset[18];
+
+    offset[0] = 0; // "Une valeur de 0 veut dire que l'image n'a pas de code d'identification"
+    offset[1] = 0; // Nous travaillons avec un type "Unmapped", soit "sans map", nous mettons donc 0
+    offset[2] = 2; // Représente le type de l'image - ici "Unmapped RGB", soit de type "2"
+
+    offset[3] = 0;  // En relation direct avec le offset[1], plus précisement la ColorMap
+    offset[4] = 0;  // N'en ayant pas demandé, ces paramètres (du 3 au 7), sont inutiles.
+    offset[5] = 0;  // Ils sont donc tous égaux à 0
+    offset[6] = 0;
+    offset[7] = 0;
+
+    // (0;0) représente le coin en bas à gauche de notre image
+    offset[8] = 0; // Origine X de notre image
+    offset[9] = 0;
+    offset[10] = 0; // Origine Y de notre image
+    offset[11] = 0;
+
+    /**
+    Nous travaillons avec des ubytes mais nous avons un ushort pour la taille et la largeur.
+    Soit notre ushort : 0000 0000 0000 0000 et un ubyte 0000 0000.
+    On doit donc d'abord travailler sur la première partie de notre ushort en le transformant en ubyte.
+    Puis nous décallons la deuxième partie de notre ushort vers la droite de façon à pouvoir le convertir lui aussi en ubyte
+    */
+    // Largeur de notre image :
+    offset[12] = width%256; // (0000 0000 0000 0000 & 1111 1111 = 0000 0000 par exemple)
+	offset[13] = (width >> 8)%256; // Décalage de 8 bits vers la droite ( 1111 0000 0000 0000, devient 0000 0000 1111 0000) puis & logique encore une fois
+    /** Au final notre largeur vaut offset[12]+offset[13]*256 */
+
+    // Hauteur de notre image
+    offset[14] = height%256;
+	offset[15] = (height >> 8)%256;
+
+	offset[16] = 24; // Nombre de bits dans un pixel, ici 3*8 = 24 => nous travaillons avec du Targa 24
+    offset[17] = 0; // Nous permet notamment de choisir l'origine de notre image. J'ai choisi ici de rester en bas à gauche
+
+    f.write((char*)offset, 18); // Ecriture des paramètres
+
+	// Création d'un tableau temporaire pour écrire en un seul coup un pixel
+	ubyte tmp[3];
+
+    // Notre image se dessine ici bien de bas en haut
+	for(int i=height-1; i>=0; --i)
+		for(int j=0; j<width; ++j){
+			tmp[2] = pixel(j,i).getRed();
+			tmp[1] = pixel(j,i).getGreen();
+			tmp[0] = pixel(j,i).getBlue();
+			f.write((char*)tmp, 3); // Ecriture des pixels, un à un
+		}
+}
+
+ColorImage* ColorImage::readTGA(std::ifstream& is){
+	ubyte offset[18];
+	is.read((char*)offset,18);
+	ubyte id_field = offset[0];
+	ubyte data_type = offset[2];
+	ushort width = offset[12] + (offset[13]*256);
+	ushort height = offset[14] + (offset[15]*256);
+	ColorImage* outtga = new ColorImage(width, height);
+
+    std::cerr<<(int)offset[16]<<std::endl;
+
+    if( offset[16] == 24){
+        is.read(NULL, id_field);
+    	if(data_type == 2){
+    		ubyte tmp[3];
+    		for(int i=0; i<height; ++i)
+    			for(int j=0; j<width; ++j){
+    				is.read((char*)tmp, 3);
+    				outtga->pixel(j,i).setRed( (ubyte)tmp[2] );
+    				outtga->pixel(j,i).setGreen( (ubyte)tmp[1] );
+    				outtga->pixel(j,i).setBlue( (ubyte)tmp[0] );
+    			}
+    	}
+        else
+            throw std::runtime_error("The RGB data type of this picture isn't 2.");
+    }
+    else
+        throw std::runtime_error("This picture isn't Targa 24 - More or less than 24 bits per pixel here.");
+
+	return outtga;
 }

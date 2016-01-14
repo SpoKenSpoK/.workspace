@@ -74,7 +74,7 @@ GrayImage* GrayImage::readPGM(std::istream& is){
 				i->pixel(k, j) = ubyte(u);
 			}
 	}
-    else throw std::runtime_error("Wrong image format.");
+    else throw std::runtime_error("Error in GrayImage::readPGM : Wrong image format.");
 
 	return i;
 }
@@ -243,7 +243,7 @@ ColorImage* ColorImage::readPPM(std::istream& is){
 				i->pixel(k, j) = ubyte(b);
 			}
 	}
-	else throw std::runtime_error("Wrong image format.");
+	else throw std::runtime_error("Error in ColorImage::readPPM : Wrong image format.");
 
 	return i;
 }
@@ -306,21 +306,11 @@ ColorImage* ColorImage::bilinearScale(ushort w, ushort h) const{
 			if(mU < 0) mU *= -1;         // Pour y répondre il suffit de multiplier par -1 (mettre au carré, puis en faire la racine carré revient au même) pour obtenir la valeur absolue de lambdA et mU
             // C'est avec cette valeur qu'au final nous allons travailler. Après application des changements les pixels précédemments blanc ont disparu.
 
-			iprime->pixel(xprime, yprime).setRed( (1-lambdA)*(1-mU)*pixel(xi, yi).getRed()
-										 		+(1-lambdA)*mU*pixel(xi, yiPone).getRed()
-										 		+lambdA*(1-mU)*pixel(xiPone, yi).getRed()
-										 		+lambdA*mU*pixel(xiPone, yiPone).getRed() );
-
-			iprime->pixel(xprime, yprime).setGreen( (1-lambdA)*(1-mU)*pixel(xi, yi).getGreen()
-										 		+(1-lambdA)*mU*pixel(xi, yiPone).getGreen()
-										 		+lambdA*(1-mU)*pixel(xiPone, yi).getGreen()
-										 		+lambdA*mU*pixel(xiPone, yiPone).getGreen() );
-
-			iprime->pixel(xprime, yprime).setBlue( (1-lambdA)*(1-mU)*pixel(xi, yi).getBlue()
-										 		+(1-lambdA)*mU*pixel(xi, yiPone).getBlue()
-										 		+lambdA*(1-mU)*pixel(xiPone, yi).getBlue()
-										 		+lambdA*mU*pixel(xiPone, yiPone).getBlue() );
-		}
+            iprime->pixel(xprime, yprime) = (1-lambdA)*(1-mU)*pixel(xi, yi)
+									        + (1-lambdA)*mU*pixel(xi, yiPone)
+									        + lambdA*(1-mU)*pixel(xiPone, yi)
+        								    + lambdA*mU*pixel(xiPone, yiPone);
+        }
 
 	return iprime;
 }
@@ -336,7 +326,7 @@ void ColorImage::writeJPEG(const char* fname, unsigned int quality) const{
 	jpeg_create_compress(&cinfo);
 
     if ((outfile = fopen(fname, "wb")) == NULL) {       // Ouverture en écriture
-        throw std::runtime_error("Image can't open.");
+        throw std::runtime_error("Error in ColorImage::writeJPEG : Image can't open.");
     }
 
 	jpeg_stdio_dest(&cinfo, outfile);
@@ -372,7 +362,7 @@ ColorImage* ColorImage::readJPEG(const char* fname){
     jpeg_create_decompress(&cinfo);
 
     if ((infile = fopen(fname, "rb")) == NULL)
-        throw std::runtime_error("Impossible to open the picture.");
+        throw std::runtime_error("Error in ColorImage::readJPEG : Impossible to open the picture.");
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
@@ -408,7 +398,7 @@ ColorImage* ColorImage::readJPEG(const char* fname){
 
 void ColorImage::writeTGA(std::ostream& f, bool rle) const{
     if(rle)
-        throw std::runtime_error("RLE not done yet sorry");
+        throw std::runtime_error("Error in ColorImage::writeTGA : RLE not done yet sorry");
 
     // Soit un tableau de ubyte nommé "offset" représentant les composants de l'image "Unmapped RGB"
     // Nous pouvons compter 18 éléments, ayant chacun une longueur différente
@@ -473,19 +463,31 @@ ColorImage* ColorImage::readTGA(std::ifstream& is){
     if( offset[16] == 24){
     	if(offset[2] == 2){
     		ubyte tmp[3];
-    		for(int i=0; i<height; ++i)
-    			for(int j=0; j<width; ++j){
-    				is.read((char*)tmp, 3); // Lecture des trois couleur RGB du pixel (On avance 3 par 3)
-    				outtga->pixel(j,i).setRed( tmp[2] );
-    				outtga->pixel(j,i).setGreen( tmp[1] );
-    				outtga->pixel(j,i).setBlue( tmp[0] );
-    			}
+
+            if(offset[17] == 0){ // Test pour savoir si l'on lis l'image de bas en haut, ou de haut en bas
+                for(int i=height-1; i>=0; --i)
+        			for(int j=0; j<width; ++j){
+        				is.read((char*)tmp, 3); // Lecture des trois couleur RGB du pixel (On avance 3 par 3)
+        				outtga->pixel(j,i).setRed( tmp[2] );
+        				outtga->pixel(j,i).setGreen( tmp[1] );
+        				outtga->pixel(j,i).setBlue( tmp[0] );
+        			}
+            }
+            else{
+                for(int i=0; i<height; ++i)
+        			for(int j=0; j<width; ++j){
+        				is.read((char*)tmp, 3); // Lecture des trois couleur RGB du pixel (On avance 3 par 3)
+        				outtga->pixel(j,i).setRed( tmp[2] );
+        				outtga->pixel(j,i).setGreen( tmp[1] );
+        				outtga->pixel(j,i).setBlue( tmp[0] );
+        			}
+            }
     	}
         else
-            throw std::runtime_error("The RGB data type of this picture isn't 2.");
+            throw std::runtime_error("Error in ColorImage::readTGA : The RGB data type of this picture isn't 2.");
     }
     else
-        throw std::runtime_error("This picture isn't Targa 24 - More or less than 24 bits per pixel here.");
+        throw std::runtime_error("Error in ColorImage::readTGA : This picture isn't Targa 24 - More or less than 24 bits per pixel here.");
 
 	return outtga;
 }

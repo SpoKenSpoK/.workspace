@@ -12,6 +12,8 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned char ubyte;
 
+// -------------------- GrayImage -------------------------------------------
+
 class GrayImage{
 private:
 	ushort width;	// Largeur
@@ -27,7 +29,7 @@ public:
 	// Différents accesseurs et mutateurs + surcharge opérateur () (foncteur)
 	inline const ubyte& pixel(ushort x, ushort y) const { return array[y*width + x]; }
 	inline ubyte& pixel(ushort x, ushort y) { return array[y*width + x]; }
-	inline const ubyte& operator() (ushort x, ushort y) const { return array[y*width + x]; }
+	inline const ubyte& operator () (ushort x, ushort y) const { return array[y*width + x]; }
 	inline ubyte& operator () (ushort x, ushort y) { return array[y*width + x]; }
 
 	// Dessin
@@ -66,6 +68,9 @@ public:
 	inline void setRed(const ubyte& r) { red = r; }
 	inline void setGreen(const ubyte& g) { green = g; }
 	inline void setBlue(const ubyte& b) { blue = b; }
+
+	friend inline Color operator * (const float& f, const Color& color) { return Color(color.red*f, color.green*f, color.blue*f); } // Surcharge de l'opérateur *
+	friend inline Color operator + (const Color& c1, const Color& c2) { return Color(c1.red+c2.red, c1.green+c2.green, c1.blue+c2.blue); } // Surcharge de l'opérateur +
 };
 
 // ------------------- Color Image --------------------------------------

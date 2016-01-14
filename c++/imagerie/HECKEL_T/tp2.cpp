@@ -1,81 +1,180 @@
 #include <iostream>
+#include <stdexcept>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include <iomanip>
+#include <cstdlib>
+
+using namespace std;
+
+/*
+ Toutes vos définitions de classes doivent être regroupées dans l'unique
+ fichier "Image.h". Son nom n'est pas modifiable sinon vous empêcherez la
+ compilation de l'autre executable servant à la correction.
+*/
 #include "Image.h"
 
-#include <iomanip>
-#include <sstream>
+extern const char *identifier;   // Ne pas modifier ces deux lignes ! Vos changements au sujet
+extern const char *informations; // de ceux deux constantes doivent être faits dans Image.cpp.
 
 
-int main(){
-	std::ifstream chatgray("chat.pgm", std::ios::binary);
-	std::ifstream chat("chat_petit.ppm", std::ios::binary);
-	std::ifstream chatd("chat_petit.ppm", std::ios::binary);
-	std::ifstream image("chat.ppm", std::ios::binary);
-	std::ifstream chattgar("chat.tga", std::ios::binary);
+int main(int argc,char *argv[])
+{
+ cout << "Votre identifiant tel que declare dans Image.cpp : " << identifier << endl;
+ cout << "Les informations que vous avez decide d'indiquer au correcteur : " << endl << informations << endl;
+ try
+  {
 
-	ColorImage* cat = ColorImage::readPPM(chat);
-	ColorImage* gato = ColorImage::readPPM(chatd);
-	ColorImage* im = ColorImage::readPPM(image);
-	GrayImage* gray = GrayImage::readPGM(chatgray);
-	ColorImage* tga = ColorImage::readTGA(chattgar);
+   //pgm - pgm
+   std::ifstream h("chat.pgm", std::ios::binary);
+   std::ofstream k("chatpgm_pgm.pgm", std::ios::binary);
+   GrayImage* j = GrayImage::readPGM(h);
+   j->writePGM(k);
+   delete j;
+   k.close();
+   h.close();
 
-	std::ofstream chatsimple("chatsimple.ppm", std::ios::binary);
-	std::ofstream chatdouble("chatdouble.ppm", std::ios::binary);
-	std::ofstream chatrec("chatrectangle.ppm", std::ios::binary);
-	std::ofstream wgray("chatgray.pgm", std::ios::binary);
-	std::ofstream chattga("chatchat.tga", std::ios::binary);
-	std::ofstream chattgareaded("chatreaded.tga", std::ios::binary);
+   //redim simple pgm
+   h.open("chat.pgm", std::ios::binary);
+   k.open("chat_simple.pgm", std::ios::binary);
+   j = GrayImage::readPGM(h);
+   GrayImage* j2 = j->simpleScale(1000,1000);
+   j2->writePGM(k);
+   delete j;
+   delete j2;
+   k.close();
+   h.close();
 
-	Color color(255,0,0);
-	Color coloro(0,255,0);
-	Color colorp(0,0,255);
-	im->rectangle(5,5,310,230,color);
-	im->rectangle(10,10,300,220,coloro);
-	im->rectangle(15,15,290,210,colorp);
+   //redim bilinear pgm
+   h.open("chat.pgm", std::ios::binary);
+   k.open("chat_bilinear.pgm", std::ios::binary);
+   j = GrayImage::readPGM(h);
+   j2 = j->bilinearScale(1000,1000);
+   j2->writePGM(k);
+   delete j;
+   delete j2;
+   k.close();
+   h.close();
 
-	cat = cat->bilinearScale(823, 400);
-	cat->writePPM(chatdouble);
+   //ppm - ppm
+   std::ifstream f("chat.ppm", std::ios::binary);
+   std::ofstream g("chatppm_ppm.ppm", std::ios::binary);
+   ColorImage* i = ColorImage::readPPM(f);
+   i->writePPM(g);
+   delete i;
+   g.close();
+   f.close();
 
-	gato = gato->simpleScale(823, 400);
-	gato->writePPM(chatsimple);
+   // ppm - jpeg
+   f.open("chat.ppm", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i->writeJPEG("chatppm_jpeg.jpeg");
+   delete i;
+   f.close();
 
-	im->writePPM(chatrec);
+   //jpeg - ppm
+   g.open("chatjpeg_ppm.ppm", std::ios::binary);
+   i = ColorImage::readJPEG("chatppm_jpeg.jpeg");
+   i->writePPM(g);
+   delete i;
+   g.close();
 
-	gray = gray->simpleScale(1500,1000);
-	gray->writePGM(wgray);
+   //ppm - tga
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chatppm_tga.tga", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i->writeTGA(g, false);
+   delete i;
+   g.close();
+   f.close();
 
-	const char* imgJpeg = "Image.jpg";
-	im->writeJPEG(imgJpeg);
+   //ppm - tga
+   f.open("chat.tga", std::ios::binary);
+   g.open("chat_tga_tga.tga", std::ios::binary);
+   i = ColorImage::readTGA(f);
+   i->writeTGA(g, false);
+   delete i;
+   g.close();
+   f.close();
 
-	const char* jpegin = "out_100.jpg";
-	ColorImage* picjpegin = ColorImage::readJPEG(jpegin);
+  /* //ppm - tgarle
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chatppm_tgarle.tga", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i->writeTGA(g);
+   delete i;
+   g.close();
+   f.close(); */
 
-	const char* jpegout = "test_jpeg_out.jpg";
-	picjpegin->writeJPEG(jpegout,100);
+   //tga - ppm
+   f.open("chatppm_tga.tga", std::ios::binary);
+   g.open("chattga_ppm.ppm", std::ios::binary);
+   i = ColorImage::readTGA(f);
+   i->writePPM(g);
+   delete i;
+   g.close();
+   f.close();
 
-	for(unsigned int quality=0;quality<=100;quality+=5)  {
-		std::ostringstream oss; // Variable pour former le nom de chaque fichier.
-		oss << "out_" << std::setfill('0') << std::setw(3) << quality << ".jpg";
-		im->writeJPEG(oss.str().c_str(),quality);
-	}
+   //tgarle - ppm
+  /* f.open("chatppm_tgarle.tga", std::ios::binary);
+   g.open("chattgarle_ppm.ppm", std::ios::binary);
+   i = ColorImage::readTGA(f);
+   i->writePPM(g);
+   delete i;
+   g.close();
+   f.close();*/
 
-	picjpegin->writeTGA(chattga,false);
-	tga->writeTGA(chattgareaded,false);
 
+   //redim simple
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chat_simple.ppm", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   ColorImage* i2 = i->simpleScale(1000,1000);
+   i2->writePPM(g);
+   delete i;
+   delete i2;
+   g.close();
+   f.close();
 
-	chatsimple.close();
-	chatdouble.close();
-	chatrec.close();
-	chat.close();
-	chatd.close();
-	image.close();
-	chatgray.close();
-	wgray.close();
+   //redim bilinear
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chat_bilinear.ppm", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i2 = i->bilinearScale(1000,1000);
+   i2->writePPM(g);
+   delete i;
+   delete i2;
+   g.close();
+   f.close();
 
-    delete cat;
-    delete gato;
-	delete im;
-	delete gray;
-	delete tga;
+   //rectangle
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chat_rec.ppm", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i->rectangle(10,10,100,100,Color(100,100,100));
+   i->writePPM(g);
+   delete i;
+   g.close();
+   f.close();
 
-	return 0;
+   //fill rectangle
+   f.open("chat.ppm", std::ios::binary);
+   g.open("chat_fillrec.ppm", std::ios::binary);
+   i = ColorImage::readPPM(f);
+   i->fillRectangle(10,10,50,50,Color(100,100,100));
+   i->writePPM(g);
+   delete i;
+   g.close();
+   f.close();
+
+  } // Trois types d'exceptions seront attrapés (les chaines C et C++ ainsi que
+    // les std::exception et toutes ses dérivées). N'utilisez pas autre chose !
+ catch(exception& e)
+  { cerr<< "Exception :"<<e.what()<< endl; }
+ catch(string& e)
+  { cerr<< "Exception string :"<<e<< endl; }
+ catch(const char * e)
+  { cerr<< "Exception const char* :"<<e<< endl; }
+ return 0;
 }

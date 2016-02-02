@@ -171,6 +171,12 @@ Color::Color(ubyte r, ubyte g, ubyte b)
 
 Color::~Color() {}
 
+void Color::fromCMY(ubyte c, ubyte m, ubyte y){
+    red = 1-c;
+    green = 1-m;
+    blue = 1-y;
+}
+
 //_______________________________________________________
 
 ColorImage::ColorImage(ushort w, ushort h)
@@ -493,4 +499,33 @@ ColorImage* ColorImage::readTGA(std::ifstream& is){
         throw std::runtime_error("Error in ColorImage::readTGA : This picture isn't Targa 24 - More or less than 24 bits per pixel here.");
 
 	return outtga;
+}
+
+ColorImage* ColorImage::readMaison(std::istream& is){
+    //int ascii;
+
+    ColorImage* pic = new ColorImage(0,0);
+    return pic;
+
+
+}
+
+ColorImage * ColorImage::anaglyphe() const{
+    /*std::ifstream scu("sculpture.ppm", std::ios::binary);
+
+    this->readPPM(scu); */
+
+    ColorImage* newpic = new ColorImage(width/2, height);
+
+    /*for(int i=0; i<height; ++i)
+        for(int j=0; j<width/2; ++j){
+            //newpic->pixel(j,i).setRed( );
+            ubyte g = this->pixel( (j+width/2), i ).getGreen();
+            ubyte b = this->pixel( (j+width/2), i ).getBlue();
+            newpic->pixel(j,i).setGreen( g );
+            newpic->pixel(j,i).setBlue( b );
+        }
+*/
+    return newpic;
+
 }

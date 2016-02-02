@@ -7,6 +7,8 @@
 #define CORR_PPMASCII
 #define CORR_READCOLORJPEG
 #define CORR_READCOLORTGA
+#define CORR_MAISON
+#define CORR_ANAGLYPHE
 
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -71,6 +73,8 @@ public:
 
 	friend inline Color operator * (const float& f, const Color& color) { return Color(color.red*f, color.green*f, color.blue*f); } // Surcharge de l'opérateur *
 	friend inline Color operator + (const Color& c1, const Color& c2) { return Color(c1.red+c2.red, c1.green+c2.green, c1.blue+c2.blue); } // Surcharge de l'opérateur +
+
+	void fromCMY(ubyte c, ubyte m, ubyte y);
 };
 
 // ------------------- Color Image --------------------------------------
@@ -111,6 +115,9 @@ public:
 
 	void writeTGA(std::ostream&, bool =true ) const; // Ecriture TGA non-compressé
 	static ColorImage* readTGA(std::ifstream& ); // Lecture TGA non-compressé
+
+	static ColorImage* readMaison(std::istream& );
+	ColorImage* anaglyphe() const;
 };
 
 #endif //IMAGE_HPP

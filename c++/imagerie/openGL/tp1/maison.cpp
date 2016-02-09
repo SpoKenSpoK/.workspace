@@ -90,7 +90,7 @@ void Texture::definir_bouclage(GLint mode_axe_s, GLint mode_axe_t){
 	utiliser();
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode_axe_s);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode_axe_t);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode_axe_t);
 }
 
 void Texture::definir_melange(GLint melange){
@@ -158,22 +158,22 @@ GLvoid initGL()
 	// INITIALISATION DES TEXTURES :
 
 	texture_sol.charger("sol.png");
-	texture_sol.definir_filtrage(GL_NEAREST, GL_LINEAR);
+	texture_sol.definir_filtrage(GL_LINEAR, GL_LINEAR);
 	texture_sol.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_sol.definir_melange(GL_MODULATE);
 
 	texture_mur.charger("mur.png");
-	texture_mur.definir_filtrage(GL_NEAREST, GL_LINEAR);
+	texture_mur.definir_filtrage(GL_LINEAR, GL_LINEAR);
 	texture_mur.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_mur.definir_melange(GL_MODULATE);
 
 	texture_facade.charger("facade.png");
-	texture_facade.definir_filtrage(GL_NEAREST, GL_LINEAR);
+	texture_facade.definir_filtrage(GL_LINEAR, GL_LINEAR);
 	texture_facade.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_facade.definir_melange(GL_MODULATE);
 
 	texture_toit.charger("toit.png");
-	texture_toit.definir_filtrage(GL_NEAREST, GL_LINEAR);
+	texture_toit.definir_filtrage(GL_LINEAR, GL_LINEAR);
 	texture_toit.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_toit.definir_melange(GL_MODULATE);
 
@@ -385,6 +385,7 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 		glTexCoord2f(0.0,0.0);
 		glVertex3d(-4, 5, -5);
 		glTexCoord2f(0.0,1.0);
+
 		glVertex3d(-4, 0, -5);
 		glTexCoord2f(1.0,1.0);
 		glVertex3d(-4, 0,  5);
@@ -408,22 +409,22 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 	// Triangle avant
 	glNormal3f(0.0f,0.0f,1.0f);
 	glBegin(GL_TRIANGLES);
-		glTexCoord2f(0.5,0.5);
+		glTexCoord2f(0.5,0.0);
 		glVertex3d( 0, 9, 5);
-		glTexCoord2f(1.0,1.0);
+		glTexCoord2f(0.0,0.5);
 		glVertex3d(-4, 5, 5);
-		glTexCoord2f(1.0,0.0);
+		glTexCoord2f(1.0,0.5);
 		glVertex3d( 4, 5, 5);
 	glEnd();
 
 	// Triangle arri�re
 	glNormal3f(0.0f,0.0f,-1.0f);
 	glBegin(GL_TRIANGLES);
-		glTexCoord2f(0.5,0.5);
+		glTexCoord2f(0.5,0.0);
 		glVertex3d( 0, 9, -5);
-		glTexCoord2f(1.0,1.0);
+		glTexCoord2f(0.0,0.5);
 		glVertex3d( 4, 5, -5);
-		glTexCoord2f(1.0,0.0);
+		glTexCoord2f(1.0,0.5);
 		glVertex3d(-4, 5, -5);
 	glEnd();
 
@@ -540,7 +541,7 @@ void affiche_arbre( float xp, float yp, float zp )
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-	affiche_repere();
+	//affiche_repere();
 
 	glEnable(GL_TEXTURE_2D);
 	affiche_sol();								// On affiche le sol.

@@ -25,6 +25,9 @@
 #include <GL/glu.h>
 #include "glut.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #define WIDTH   800										// Largeur de la fen�tre OpenGL
 #define HEIGHT  600										// Hauteur de la fen�tre OpenGl
 
@@ -34,6 +37,50 @@ float	xpos = 0, zpos = -50;							// Position de la cam�ra
 int		angle_x = 45, angle_y = 45;						// Orientation de la cam�ra
 int		mouse_x = 0, mouse_y = 0;						// Position de la souris
 float 	xlight = 5.0, ylight = 20.0, zlight = 15.0;
+
+class Texture {
+public:
+	unsigned char* img;
+	GLuint id;
+	int tWidth;
+	int tHeight;
+	int opp;
+
+	inline Texture();
+	inline ~Texture() { delete img; }
+	bool charger(char* );
+	void utiliser();
+	void definir_filtrage(GLint , GLint);
+};
+
+// Définition des méthodes de la classe Texture
+
+bool Texture::charger(char* file_name){
+	img = stbi_load(file_name, &tWidth, &tHeight, &opp, 0);
+	glGenTextures(1, &id);
+	glBindTexture(GL_TEXTURE_2D, id);
+	if(opp == 3)
+		glTexImage2D( GL_TEXTURE_2D, 0, 3, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+	else
+		glTexImage2D( GL_TEXTURE_2D, 0, 4, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+	return img;
+}
+
+void Texture::utiliser() { glBindTexture(GL_TEXTURE_2D, id); }
+void Texture::definir_filtrage(GLint mode_min, GLint mode_mag){
+	utiliser();
+
+	//GL_TEXTURE_MIN_FILTER
+	//GL_TEXTURE_MAX_FILTER
+	glTexParameteri(GL_TEXTURE_2D, mode_min, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, mode_mag, GL_LINEAR);
+}
+
+
+
+
+
 
 //*****************************************************************
 //* A FAIRE :
@@ -162,7 +209,7 @@ void affiche_sol()
 void affiche_repere(){
 	glPushMatrix();
 	glLineWidth(3);
-	
+
 	GLfloat XAmbient[4] = {0.5f, 0.0f, 0.0f, 1.0f};
 	GLfloat XDiffuse[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	GLfloat XSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};

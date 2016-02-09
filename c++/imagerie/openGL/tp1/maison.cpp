@@ -33,6 +33,7 @@
 float	xpos = 0, zpos = -50;							// Position de la cam�ra
 int		angle_x = 45, angle_y = 45;						// Orientation de la cam�ra
 int		mouse_x = 0, mouse_y = 0;						// Position de la souris
+float 	xlight = 5.0, ylight = 20.0, zlight = 15.0;
 
 //*****************************************************************
 //* A FAIRE :
@@ -61,7 +62,6 @@ int		mouse_x = 0, mouse_y = 0;						// Position de la souris
 // Retour :
 //    _
 ///////////////////////////////////////////////////////////////////////////////
-
 GLvoid initGL()
 {
 	glClearColor(0, 0, 0, 1);							// Couleur servant � effacer la fen�tre (noir)
@@ -101,7 +101,7 @@ GLvoid initGL()
 	GLfloat Light1Amb[4] = {0.7f, 0.7f, 0.7f, 1.0f};
 	GLfloat Light1Dif[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	GLfloat Light1Spec[4] = {0.5f, 0.5f, 0.5f, 1.0f};
-	GLfloat Light1Pos[4] = {5.0f, 20.0f, 15.0f, 1.0f};
+	GLfloat Light1Pos[4] = {xlight, ylight, zlight, 1.0f};
 
 	glLightfv(GL_LIGHT1, GL_AMBIENT, Light1Amb);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, Light1Dif);
@@ -128,6 +128,7 @@ GLvoid initGL()
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_sol()
 {
+	glPushMatrix();
 	//*****************************************************************
 	//* A FAIRE :
 	//* Remplacer le glColor3f() suivant par l'utilisation du mat�riau
@@ -154,11 +155,14 @@ void affiche_sol()
 		glVertex3d( 20, 0, -20);
 	glEnd();
 
+	glPopMatrix();
+
 }
 
 void affiche_repere(){
+	glPushMatrix();
 	glLineWidth(3);
-
+	
 	GLfloat XAmbient[4] = {0.5f, 0.0f, 0.0f, 1.0f};
 	GLfloat XDiffuse[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 	GLfloat XSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
@@ -204,6 +208,8 @@ void affiche_repere(){
 		glVertex3f(0.0, 0.0, 0.0);
 		glVertex3f(0, 0, 100);
 	glEnd();
+
+	glPopMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -403,7 +409,7 @@ void affiche_scene()
 {
 	affiche_repere();
 	affiche_sol();								// On affiche le sol.
-	
+
 	//*****************************************************************
 	//* A FAIRE :
 	//* Afficher quelques maisons et quelques arbres.
@@ -462,13 +468,35 @@ GLvoid callback_display()
 	glDisable(GL_LIGHT0);
 
 
-	GLfloat Light1Pos[4] = {10.0f, 20.0f, 15.0f, 1.0f};
+	GLfloat Light1Pos[4] = {xlight, ylight, zlight, 1.0f};
 
 	// Fixe la position de la lumière 1
 	glLightfv(GL_LIGHT1, GL_POSITION, Light1Pos);
 	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0f);
-
 	//glDisable(GL_LIGHT1);
+
+	glPushMatrix();
+		glTranslatef(Light1Pos[0], Light1Pos[1], Light1Pos[2]);
+		GLfloat SphereAmbient[4] = {0.5f, 0.5f, 0.00f, 1.0f};
+		GLfloat SphereDiffuse[4] = {1.0f, 1.0f, 0.0f, 1.0f};
+		GLfloat SphereSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
+		GLfloat SphereShininess[] = { 10.0F };
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, SphereAmbient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, SphereDiffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, SphereSpecular);
+		glMaterialfv(GL_FRONT, GL_SHININESS, SphereShininess);
+
+		glutSolidSphere(1,50,50);
+	glPopMatrix();
+
+	GLfloat fogColor[4]= {0.4f,0.4f,0.4f,0.0f};
+	glFogf(GL_FOG_MODE, GL_LINEAR);
+	glFogf(GL_FOG_DENSITY, 100);
+	glFogf(GL_FOG_START, 0);
+	glFogf(GL_FOG_END, 80);
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glEnable(GL_FOG);
 
 	// On affiche la sc�ne.
 	affiche_scene();
@@ -476,8 +504,6 @@ GLvoid callback_display()
 	// On force OpenGL � afficher avant de passer � la suite.
 	glFlush();
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Call-back : fonction appel�e lorsqu'on redimensionne la fen�tre.
@@ -536,23 +562,37 @@ GLvoid callback_special(int key, int x, int y)
 	switch (key)
 	{
 		case GLUT_KEY_UP:					// Fl�che vers le haut :
-			zpos += speed;					// on d�place la cam�ra selon z-
+			//zpos += speed;					// on d�place la cam�ra selon z-
+			zlight -= speed;
 			glutPostRedisplay();			// et on demande le r�affichage.
 			break;
 
 		case GLUT_KEY_DOWN:					// Fl�che vers le bas :
-			zpos -= speed;					// on d�place la cam�ra selon z+
+			//zpos -= speed;					// on d�place la cam�ra selon z+
+			zlight += speed;
 			glutPostRedisplay();			// et on demande le r�affichage.
 			break;
 
 		case GLUT_KEY_LEFT:					// Fl�che vers la gauche :
-			xpos += speed;					// on d�place la cam�ra selon x-
+			//xpos += speed;					// on d�place la cam�ra selon x-
+			xlight -= speed;
 			glutPostRedisplay();			// et on demande le r�affichage.
 			break;
 
 		case GLUT_KEY_RIGHT:				// Fl�che vers la droite :
-			xpos -= speed;					// on d�place la cam�ra selon x+
+			//xpos -= speed;					// on d�place la cam�ra selon x+
+			xlight+= speed;
 			glutPostRedisplay();			// et on demande le r�affichage.
+			break;
+
+		case GLUT_KEY_F1:
+			ylight-= speed;
+			glutPostRedisplay();
+			break;
+
+		case GLUT_KEY_F2:
+			ylight+= speed;
+			glutPostRedisplay();
 			break;
 	}
 }

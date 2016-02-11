@@ -46,7 +46,7 @@ public:
 	int opp;
 
 	inline ~Texture() { delete [] img; }
-	bool charger(const char* );
+	bool charger(const char*, bool =false );
 	void utiliser();
 	void definir_filtrage(GLint , GLint);
 	void definir_bouclage(GLint , GLint);
@@ -55,19 +55,27 @@ public:
 
 // Définition des méthodes de la classe Texture
 
-bool Texture::charger(const char* file_name){
+bool Texture::charger(const char* file_name, bool mipmap){
 	img = stbi_load(file_name, &tWidth, &tHeight, &opp, 0);
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
 	if( img!= NULL){
 		switch (opp){
 			case 3:
-				glTexImage2D( GL_TEXTURE_2D, 0, opp, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+				if(mipmap)
+					gluBuild2DMipmaps( GL_TEXTURE_2D, opp, tWidth, tHeight, GL_RGB, GL_UNSIGNED_BYTE, img);
+				else
+					glTexImage2D( GL_TEXTURE_2D, 0, opp, tWidth, tHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+
 				return true;
 				break;
 
 			case 4:
-				glTexImage2D( GL_TEXTURE_2D, 0, opp, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+				if(mipmap)
+					gluBuild2DMipmaps( GL_TEXTURE_2D, opp, tWidth, tHeight, GL_RGBA, GL_UNSIGNED_BYTE, img);
+				else
+					glTexImage2D( GL_TEXTURE_2D, 0, opp, tWidth, tHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
 				return true;
 				break;
 
@@ -157,8 +165,8 @@ GLvoid initGL()
 
 	// INITIALISATION DES TEXTURES :
 
-	texture_sol.charger("sol.png");
-	texture_sol.definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture_sol.charger("sol.png",true);
+	texture_sol.definir_filtrage(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	texture_sol.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_sol.definir_melange(GL_MODULATE);
 
@@ -245,11 +253,11 @@ void affiche_sol()
 	glBegin(GL_QUADS); // Affichage d'un quadrilat�re
 		glTexCoord2f(0.0,0.0);
 		glVertex3d(-50, 0, -50);
-		glTexCoord2f(0.0,1.0);
+		glTexCoord2f(0.0,50.0);
 		glVertex3d(-50, 0,  50);
-		glTexCoord2f(1.0,1.0);
+		glTexCoord2f(50.0,50.0);
 		glVertex3d( 50, 0,  50);
-		glTexCoord2f(1.0,0.0);
+		glTexCoord2f(50.0,0.0);
 		glVertex3d( 50, 0, -50);
 	glEnd();
 
@@ -350,7 +358,7 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 
 	//glColor3f(1.0f,1.0f,1.0f);			// Couleur courante : blanc
 
-	texture_facade.utiliser();
+	texture_mur.utiliser();
 
 	// Mur de face
 	glNormal3f(0.0f,0.0f,1.0f);
@@ -365,7 +373,6 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 		glVertex3d( 4, 5, 5);
 	glEnd();
 
-	texture_mur.utiliser();
 	// Mur arri�re
 	glNormal3f(0.0f,0.0f,-1.0f);
 	glBegin(GL_QUADS);
@@ -393,6 +400,8 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 		glVertex3d(-4, 5,  5);
 	glEnd();
 
+	texture_facade.utiliser();
+
 	// Mur droit
 	glNormal3f(1.0f,0.0f,0.0f);
 	glBegin(GL_QUADS);
@@ -406,25 +415,26 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 		glVertex3d(4, 5, -5);
 	glEnd();
 
+	texture_mur.utiliser();
 	// Triangle avant
 	glNormal3f(0.0f,0.0f,1.0f);
 	glBegin(GL_TRIANGLES);
-		glTexCoord2f(0.5,0.0);
+		glTexCoord2f(0.5,0.2);
 		glVertex3d( 0, 9, 5);
-		glTexCoord2f(0.0,0.5);
+		glTexCoord2f(0.0,1.0);
 		glVertex3d(-4, 5, 5);
-		glTexCoord2f(1.0,0.5);
+		glTexCoord2f(1.0,1.0);
 		glVertex3d( 4, 5, 5);
 	glEnd();
 
 	// Triangle arri�re
 	glNormal3f(0.0f,0.0f,-1.0f);
 	glBegin(GL_TRIANGLES);
-		glTexCoord2f(0.5,0.0);
+		glTexCoord2f(0.5,0.2);
 		glVertex3d( 0, 9, -5);
-		glTexCoord2f(0.0,0.5);
+		glTexCoord2f(0.0,1.0);
 		glVertex3d( 4, 5, -5);
-		glTexCoord2f(1.0,0.5);
+		glTexCoord2f(1.0,1.0);
 		glVertex3d(-4, 5, -5);
 	glEnd();
 
@@ -531,6 +541,8 @@ void affiche_arbre( float xp, float yp, float zp )
 }
 
 
+/* Copyright (c) Mark J. Kilgard, 1994, 1995, 1996, 1998. */
+
 ///////////////////////////////////////////////////////////////////////////////
 // Affiche les diff�rents objets de la sc�ne.
 //-----------------------------------------------------------------------------
@@ -609,7 +621,8 @@ GLvoid callback_display()
 
 	GLfloat Light1Pos[4] = {xlight, ylight, zlight, 1.0f};
 
-	// Fixe la position de la lumière 1
+/* Copyright (c) Mark J. Kilgard, 1994, 1995, 1996, 1998. */
+
 	glLightfv(GL_LIGHT1, GL_POSITION, Light1Pos);
 	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.0f);
 	//glDisable(GL_LIGHT1);
@@ -625,6 +638,8 @@ GLvoid callback_display()
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, SphereDiffuse);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, SphereSpecular);
 		glMaterialfv(GL_FRONT, GL_SHININESS, SphereShininess);
+
+/* Copyright (c) Mark J. Kilgard, 1994, 1995, 1996, 1998. */
 
 		glutSolidSphere(1,50,50);
 	glPopMatrix();
@@ -675,10 +690,31 @@ GLvoid callback_reshape(GLsizei width, GLsizei height)
 ///////////////////////////////////////////////////////////////////////////////
 GLvoid callback_keyboard(unsigned char key, int x, int y)
 {
+	float speed = 1.0f;
 	switch (key)
 	{
 		case KEY_ESC:						// 'ECHAP' :
 			exit(1);						// on quitte le programme
+			break;
+
+		case 'z':					// Fl�che vers le haut :
+			zpos += speed;					// on d�place la cam�ra selon z-
+			glutPostRedisplay();			// et on demande le r�affichage.
+			break;
+
+		case 's':					// Fl�che vers le bas :
+			zpos -= speed;					// on d�place la cam�ra selon z
+			glutPostRedisplay();			// et on demande le r�affichage.
+			break;
+
+		case 'q':					// Fl�che vers la gauche :
+			xpos += speed;					// on d�place la cam�ra selon x-
+			glutPostRedisplay();			// et on demande le r�affichage.
+			break;
+
+		case 'd':				// Fl�che vers la droite :
+			xpos -= speed;					// on d�place la cam�ra selon x+
+			glutPostRedisplay();			// et on demande le r�affichage.
 			break;
 	}
 }

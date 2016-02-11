@@ -170,18 +170,18 @@ GLvoid initGL()
 	texture_sol.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_sol.definir_melange(GL_MODULATE);
 
-	texture_mur.charger("mur.png");
-	texture_mur.definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture_mur.charger("mur.png", true);
+	texture_mur.definir_filtrage(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	texture_mur.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_mur.definir_melange(GL_MODULATE);
 
-	texture_facade.charger("facade.png");
-	texture_facade.definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture_facade.charger("facade.png", true);
+	texture_facade.definir_filtrage(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	texture_facade.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_facade.definir_melange(GL_MODULATE);
 
-	texture_toit.charger("toit.png");
-	texture_toit.definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture_toit.charger("toit.png", true);
+	texture_toit.definir_filtrage(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR);
 	texture_toit.definir_bouclage(GL_REPEAT, GL_REPEAT);
 	texture_toit.definir_melange(GL_MODULATE);
 
@@ -238,8 +238,8 @@ void affiche_sol()
 	//* ambiant, diffus, speculaire du mat�riau du sol).
 	//*****************************************************************
 
-	GLfloat MatAmbient[4] = {0.0f, 0.4f, 0.0f, 1.0f};
-	GLfloat MatDiffuse[4] = {0.0f, 0.8f, 0.0f, 1.0f};
+	GLfloat MatAmbient[4] = {0.25f, 0.25f, 0.25f, 1.0f};
+	GLfloat MatDiffuse[4] = {0.9f, 0.9f, 0.9f, 1.0f};
 	GLfloat MatSpecular[4] = {0.2f,0.2f, 0.2f, 1.0f};
 	GLfloat MatShininess[] = { 5.0F };
 
@@ -263,59 +263,6 @@ void affiche_sol()
 
 	glPopMatrix();
 
-}
-
-void affiche_repere(){
-	glPushMatrix();
-	glLineWidth(3);
-
-	GLfloat XAmbient[4] = {0.5f, 0.0f, 0.0f, 1.0f};
-	GLfloat XDiffuse[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-	GLfloat XSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
-	GLfloat XShininess[] = { 5.0F };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, XAmbient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, XDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, XSpecular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, XShininess);
-
-	glBegin(GL_LINES);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(100, 0, 0);
-	glEnd();
-
-
-	GLfloat YAmbient[4] = {0.0f, 0.5f, 0.0f, 1.0f};
-	GLfloat YDiffuse[4] = {0.0f, 1.0f, 0.0f, 1.0f};
-	GLfloat YSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
-	GLfloat YShininess[] = { 5.0F };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, YAmbient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, YDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, YSpecular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, YShininess);
-
-	glBegin(GL_LINES);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0, 100, 0);
-	glEnd();
-
-
-	GLfloat ZAmbient[4] = {0.0f, 0.0f, 0.5f, 1.0f};
-	GLfloat ZDiffuse[4] = {0.0f, 0.0f, 1.0f, 1.0f};
-	GLfloat ZSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
-	GLfloat ZShininess[] = { 5.0F };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ZAmbient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, ZDiffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, ZSpecular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, ZShininess);
-	glBegin(GL_LINES);
-		glVertex3f(0.0, 0.0, 0.0);
-		glVertex3f(0, 0, 100);
-	glEnd();
-
-	glPopMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -346,9 +293,9 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 	//* ambiant, diffus, speculaire du mat�riau du mur).
 	//*****************************************************************
 
-	GLfloat MatAmbient[4] = {0.5f, 0.5f, 0.5f, 1.0f};
-	GLfloat MatDiffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-	GLfloat MatSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
+	GLfloat MatAmbient[4] = {0.25f, 0.25f, 0.25f, 1.0f};
+	GLfloat MatDiffuse[4] = {0.5f, 0.5f, 0.5f, 1.0f};
+	GLfloat MatSpecular[4] = {0.2f,0.2f, 0.2f, 1.0f};
 	GLfloat MatShininess[] = { 5.0F };
 
 	glMaterialfv(GL_FRONT, GL_AMBIENT, MatAmbient);
@@ -445,8 +392,8 @@ void affiche_maison( float xp, float yp, float zp, float yr )
 //* ambiant, diffus, speculaire du mat�riau du toit).
 //*****************************************************************
 
-	GLfloat ToitAmbient[4] = {0.5f, 0.0f, 0.0f, 1.0f};
-	GLfloat ToitDiffuse[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+	GLfloat ToitAmbient[4] = {0.25f, 0.25f, 0.25f, 1.0f};
+	GLfloat ToitDiffuse[4] = {0.5f, 0.5f, 0.5f, 1.0f};
 	GLfloat ToitSpecular[4] = {0.2f,0.2f, 0.2f, 1.0f};
 	GLfloat ToitShininess[] = { 5.0F };
 
@@ -553,18 +500,9 @@ void affiche_arbre( float xp, float yp, float zp )
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-	//affiche_repere();
-
 	glEnable(GL_TEXTURE_2D);
 	affiche_sol();								// On affiche le sol.
 
-	//*****************************************************************
-	//* A FAIRE :
-	//* Afficher quelques maisons et quelques arbres.
-	//*
-	//* Par exemple, on affiche ici une maison en (0,0,0),
-	//* tourn�e de 20� :
-	//*****************************************************************
 	affiche_maison( -10, 0, 10, 0 );
 	affiche_maison( -10, 0, -10, 0 );
 	affiche_maison( 10, 0, 10, 0 );
@@ -631,7 +569,7 @@ GLvoid callback_display()
 		glTranslatef(Light1Pos[0], Light1Pos[1], Light1Pos[2]);
 		GLfloat SphereAmbient[4] = {0.5f, 0.5f, 0.00f, 1.0f};
 		GLfloat SphereDiffuse[4] = {1.0f, 1.0f, 0.0f, 1.0f};
-		GLfloat SphereSpecular[4] = {0.5f,0.5f, 0.5f, 1.0f};
+		GLfloat SphereSpecular[4] = {0.2f,0.2f, 0.2f, 1.0f};
 		GLfloat SphereShininess[] = { 10.0F };
 
 		glMaterialfv(GL_FRONT, GL_AMBIENT, SphereAmbient);
@@ -646,11 +584,10 @@ GLvoid callback_display()
 
 	GLfloat fogColor[4]= {0.4f,0.4f,0.4f,0.0f};
 	glFogf(GL_FOG_MODE, GL_LINEAR);
-	glFogf(GL_FOG_DENSITY, 100);
 	glFogf(GL_FOG_START, 0);
-	glFogf(GL_FOG_END, 70);
+	glFogf(GL_FOG_END, 180);
 	glFogfv(GL_FOG_COLOR, fogColor);
-	glEnable(GL_FOG);
+	//glEnable(GL_FOG);
 
 	// On affiche la sc�ne.
 	affiche_scene();

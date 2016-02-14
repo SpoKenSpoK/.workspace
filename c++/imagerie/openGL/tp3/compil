@@ -1,1 +1,1 @@
-g++ -Wall main.cpp terrain.cpp pgm.cpp vector3f.cpp -o terrain -lglut -lGLU -lGL -L.
+g++ -Wall main.cpp terrain.cpp pgm.cpp vector3f.cpp texture.cpp -o terrain -lglut -lGLU -lGL -L.

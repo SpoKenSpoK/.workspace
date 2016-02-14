@@ -16,8 +16,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "vector3f.h"
-
-
+#include "texture.hpp"
 
 typedef struct									// D�finition d'un point du terrain
 {
@@ -27,7 +26,9 @@ typedef struct									// D�finition d'un point du terrain
 	GLfloat	s, t;								// Coordonn�es de texture
 } Point_terrain;
 
-
+struct face{
+	Vector3f normaleFace;
+};
 
 class Terrain
 {
@@ -50,6 +51,11 @@ public :
 		return nb_pt_z*dist_z*0.5f;
 	}
 
+	void calcule_coordonnees_texture();
+	void charger(const char* file_name);
+	void calcule_normales();
+
+
 private:
 
 	int		nb_pt_x, nb_pt_z;						// Nombre de points en x et en z
@@ -62,6 +68,8 @@ private:
 	GLfloat terrain_diffuse [4];
 	GLfloat terrain_specular [4];
 	GLfloat terrain_shininess [1];
+
+	Texture texture;
 };
 
 

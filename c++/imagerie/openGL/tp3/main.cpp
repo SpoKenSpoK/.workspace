@@ -15,6 +15,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "terrain.h"
+#include "texture.hpp"
 
 int SCREEN_WIDTH  = 800;								// Largeur de la fen�tre OpenGL
 int SCREEN_HEIGHT = 600;								// Hauteur de la fen�tre OpenGl
@@ -33,8 +34,6 @@ GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 
 Terrain	terrain;										// D�claration d'un objet terrain
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Intitialisation de certains param�tres d'OpenGL.
@@ -265,7 +264,10 @@ void initialise_scene()
 {
 	// On cr�e le terrain au moyen d'une image en niveaux de gris au format PGM.
 	// On espace les points de 1.0 unit� selon x, de 0.1 unit� selon y, de 1.0 unit� selon z
+	glEnable(GL_TEXTURE_2D);
 	terrain.creation( 1.0, 0.1, 1.0, "terrain_128x128.pgm" );
+	terrain.calcule_coordonnees_texture();
+	terrain.charger("terrain_texture.png");
 }
 
 

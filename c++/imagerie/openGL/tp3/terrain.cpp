@@ -172,8 +172,8 @@ void Terrain::calcule_normales(){
 						|   |
 						4---3--
 						|  /|
-					    | / |
-					    1/--2--
+						| / |
+						1/--2--
 					*/
 
 				 	side_one = Vector3f( p3.x - p2.x, p3.hauteur - p2.hauteur, p3.z - p2.z );
@@ -195,14 +195,15 @@ void Terrain::calcule_normales(){
 					p4 = points_terrain[indice - nb_pt_x];
 					p5 = points_terrain[indice - nb_pt_x + 1];
 
-					/*	|   |
+					/*
+						|   |
 						4---5--
 						|  /|
-					    | / |
-					    1/--2--
+						| / |
+						1/--2--
 						|  /|
-					    | / |
-					    3/--x--
+						| / |
+						3/--x--
 						|   |
 					*/
 
@@ -382,15 +383,15 @@ void Terrain::calcule_normales(){
 				p6 = points_terrain[indice - nb_pt_x];
 				p7 = points_terrain[indice - nb_pt_x + 1];
 				/*
-					  |   |   |
+					|   |   |
 					--x---6---7--
-					  |  /|  /|
-					  | / | / |
+					|  /|  /|
+					| / | / |
 					--5/--1---2--
-				      |  /|  /|
-				      | / | / |
-				    --4/--3---x--
-					  |   |   |
+					|  /|  /|
+					| / | / |
+					--4/--3---x--
+					|   |   |
 				*/
 
 				side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );

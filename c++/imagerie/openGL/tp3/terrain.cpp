@@ -140,8 +140,8 @@ void Terrain::calcule_normales(){
 	Vector3f side_one, side_two;
 	Point_terrain p1, p2, p3, p4, p5, p6, p7;
 
-	for(int z=0; z < nb_pt_z-1; ++z)
-		for(int x=0; x < nb_pt_x-1; ++x){
+	for(int z=0; z < nb_pt_z; ++z)
+		for(int x=0; x < nb_pt_x; ++x){
 			int indice = x + z * nb_pt_x;
 
 			if( points_terrain[indice].x == 0 ){
@@ -425,8 +425,6 @@ void Terrain::calcule_normales(){
 				normale_six.normalize();
 				supernormale = (normale_one + normale_two + normale_three + normale_four + normale_five + normale_six);
 			}
-
-
 
 			supernormale.normalize();
 			points_terrain[indice].nx = supernormale.x;

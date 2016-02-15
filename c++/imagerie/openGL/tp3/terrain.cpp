@@ -138,7 +138,7 @@ void Terrain::calcule_coordonnees_texture(){
 void Terrain::calcule_normales(){
 	Vector3f supernormale(0,0,0);
 	Vector3f side_one, side_two;
-	Point_terrain p1, p2, p3, p4, p5, p6, p7, p8, p9;
+	Point_terrain p1, p2, p3, p4, p5, p6, p7;
 
 	for(int z=0; z < nb_pt_z-1; ++z)
 		for(int x=0; x < nb_pt_x-1; ++x){
@@ -225,8 +225,8 @@ void Terrain::calcule_normales(){
 				}
 			}
 
-			else if( point_terrain[indice].x == nb_pt_x-1 ){
-				if( point_terrain[indice].z == 0 ){
+			else if( points_terrain[indice].x == nb_pt_x-1 ){
+				if( points_terrain[indice].z == 0 ){
 					p1 = points_terrain[indice];
 					p2 = points_terrain[indice + nb_pt_x];
 					p3 = points_terrain[indice + nb_pt_x - 1];
@@ -252,22 +252,178 @@ void Terrain::calcule_normales(){
 					normale_two.normalize();
 					supernormale = (normale_one + normale_two);
 				}
-				else if( point_terrain[indice].z == nb_pt_z-1 ){
+				else if( points_terrain[indice].z == nb_pt_z-1 ){
 					p1 = points_terrain[indice];
 					p2 = points_terrain[indice - 1];
 					p3 = points_terrain[indice - nb_pt_x - 1];
-					p4 = points_terrain[indice - nb_pt_x];
 
 					/*
 						  |   |
-						--3---4
+						--x---3
 						  |  /|
 						  | / |
 						--2/--1
 					*/
 
-
+					side_one = Vector3f( p3.x - p1.x, p3.hauteur - p1.hauteur, p3.z - p1.z );
+					side_two = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
+					supernormale = (side_one ^ side_two);
 				}
+				else{
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice + nb_pt_x];
+					p3 = points_terrain[indice + nb_pt_x - 1];
+					p4 = points_terrain[indice - 1];
+					p5 = points_terrain[indice - nb_pt_x];
+
+					/*
+						  |   |
+						--x---5
+						  |  /|
+						  | / |
+						--4/--1
+						  |  /|
+						  | / |
+						--3/--2
+						  |   |
+					*/
+
+					side_one = Vector3f( p5.x - p1.x, p5.hauteur - p1.hauteur, p5.z - p1.z );
+					side_two = Vector3f( p4.x - p1.x, p4.hauteur - p1.hauteur, p4.z - p1.z );
+					Vector3f normale_one = (side_one ^ side_two);
+
+					side_one = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+					side_two = Vector3f( p3.x - p2.x, p3.hauteur - p3.hauteur, p3.z - p2.z );
+					Vector3f normale_two = (side_one ^ side_two);
+
+					side_one = Vector3f( p1.x - p4.x, p1.hauteur - p4.hauteur, p1.z - p4.z );
+					side_two = Vector3f( p3.x - p4.x, p3.hauteur - p4.hauteur, p3.z - p4.z );
+					Vector3f normale_three = (side_two ^ side_one);
+
+					normale_one.normalize();
+					normale_two.normalize();
+					normale_three.normalize();
+					supernormale = (normale_one + normale_two + normale_three);
+				}
+			}
+
+			else if( points_terrain[indice].z == 0 && points_terrain[indice].x > 0  && points_terrain[indice].x < nb_pt_x-1 ){
+				p1 = points_terrain[indice];
+				p2 = points_terrain[indice + 1];
+				p3 = points_terrain[indice + nb_pt_x];
+				p4 = points_terrain[indice + nb_pt_x - 1];
+				p5 = points_terrain[indice - 1];
+
+				/*
+					--5---1---2--
+					  |  /|  /|
+					  | / | / |
+					--4/--3---x--
+					  |   |   |
+				*/
+
+				side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
+				side_two = Vector3f( p3.x - p1.x, p3.hauteur - p1.hauteur, p3.z - p1.z );
+				Vector3f normale_one = (side_two ^ side_one);
+
+				side_one = Vector3f( p1.x - p5.x, p1.hauteur - p5.hauteur, p1.z - p5.z );
+				side_two = Vector3f( p4.x - p5.x, p4.hauteur - p5.hauteur, p4.z - p5.z );
+				Vector3f normale_two = (side_two ^ side_one);
+
+				side_one = Vector3f( p1.x - p3.x, p1.hauteur - p3.hauteur, p1.z - p3.z );
+				side_two = Vector3f( p4.x - p3.x, p4.hauteur - p3.hauteur, p4.z - p3.z );
+				Vector3f normale_three = (side_two ^ side_one);
+
+				normale_one.normalize();
+				normale_two.normalize();
+				normale_three.normalize();
+				supernormale = (normale_one + normale_two + normale_three);
+			}
+
+			else if( points_terrain[indice].z == nb_pt_z-1 && points_terrain[indice].x > 0  && points_terrain[indice].x < nb_pt_x-1 ){
+				p1 = points_terrain[indice];
+				p2 = points_terrain[indice + 1];
+				p3 = points_terrain[indice - nb_pt_x + 1];
+				p4 = points_terrain[indice - nb_pt_x];
+				p5 = points_terrain[indice - 1];
+
+				/*
+					  |   |   |
+					--x---4---3--
+					  |  /|  /|
+					  | / | / |
+					--5/--1---2--
+				*/
+
+				side_one = Vector3f( p3.x - p2.x, p3.hauteur - p2.hauteur, p3.z - p2.z );
+				side_two = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+				Vector3f normale_one = (side_one ^ side_two);
+
+				side_one = Vector3f( p3.x - p4.x, p3.hauteur - p4.hauteur, p3.z - p4.z );
+				side_two = Vector3f( p1.x - p4.x, p1.hauteur - p4.hauteur, p1.z - p4.z );
+				Vector3f normale_two = (side_two ^ side_one);
+
+				side_one = Vector3f( p4.x - p1.x, p4.hauteur - p1.hauteur, p4.z - p1.z );
+				side_two = Vector3f( p5.x - p1.x, p5.hauteur - p1.hauteur, p5.z - p1.z );
+				Vector3f normale_three = (side_one ^ side_two);
+
+				normale_one.normalize();
+				normale_two.normalize();
+				normale_three.normalize();
+				supernormale = (normale_one + normale_two + normale_three);
+			}
+
+			else{
+				p1 = points_terrain[indice];
+				p2 = points_terrain[indice + 1];
+				p3 = points_terrain[indice + nb_pt_x];
+				p4 = points_terrain[indice + nb_pt_x - 1];
+				p5 = points_terrain[indice - 1];
+				p6 = points_terrain[indice - nb_pt_x];
+				p7 = points_terrain[indice - nb_pt_x + 1];
+				/*
+					  |   |   |
+					--x---6---7--
+					  |  /|  /|
+					  | / | / |
+					--5/--1---2--
+				      |  /|  /|
+				      | / | / |
+				    --4/--3---x--
+					  |   |   |
+				*/
+
+				side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
+				side_two = Vector3f( p3.x - p1.x, p3.hauteur - p1.hauteur, p3.z - p1.z );
+				Vector3f normale_one = (side_two ^ side_one);
+
+				side_one = Vector3f( p1.x - p3.x, p1.hauteur - p3.hauteur, p1.z - p3.z );
+				side_two = Vector3f( p4.x - p3.x, p1.hauteur - p3.hauteur, p4.z - p3.z );
+				Vector3f normale_two = (side_one ^ side_two);
+
+				side_one = Vector3f( p1.x - p5.x, p1.hauteur - p5.hauteur, p1.z - p5.z );
+				side_two = Vector3f( p4.x - p5.x, p4.hauteur - p5.hauteur, p4.z - p5.z );
+				Vector3f normale_three = (side_two ^ side_one);
+
+				side_one = Vector3f( p6.x - p1.x, p6.hauteur - p1.hauteur, p6.z - p1.z );
+				side_two = Vector3f( p5.x - p1.x, p5.hauteur - p1.hauteur, p5.z - p1.z );
+				Vector3f normale_four = (side_one ^ side_two);
+
+				side_one = Vector3f( p7.x - p6.x, p7.hauteur - p6.hauteur, p7.z - p6.z );
+				side_two = Vector3f( p1.x - p6.x, p1.hauteur - p6.hauteur, p1.z - p6.z );
+				Vector3f normale_five = (side_two ^ side_one);
+
+				side_one = Vector3f( p7.x - p2.x, p7.hauteur - p2.hauteur, p7.z - p2.z );
+				side_two = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+				Vector3f normale_six = (side_one ^ side_two);
+
+				normale_one.normalize();
+				normale_two.normalize();
+				normale_three.normalize();
+				normale_four.normalize();
+				normale_five.normalize();
+				normale_six.normalize();
+				supernormale = (normale_one + normale_two + normale_three + normale_four + normale_five + normale_six);
 			}
 
 

@@ -26,10 +26,6 @@ typedef struct									// D�finition d'un point du terrain
 	GLfloat	s, t;								// Coordonn�es de texture
 } Point_terrain;
 
-struct face{
-	Vector3f normaleFace;
-};
-
 class Terrain
 {
 public :
@@ -61,6 +57,7 @@ private:
 	int		nb_pt_x, nb_pt_z;						// Nombre de points en x et en z
 	float	dist_x, dist_z;							// Distance s�parant 2 points selon x et z
 	float   dist_y;									// Coefficient d'agrandissement vertical
+	int 	nbface;
 
 	Point_terrain	*points_terrain;				// Tableau contenant les points du terrain
 
@@ -68,6 +65,8 @@ private:
 	GLfloat terrain_diffuse [4];
 	GLfloat terrain_specular [4];
 	GLfloat terrain_shininess [1];
+
+	Vector3f* normaleFace;
 
 	Texture texture;
 };

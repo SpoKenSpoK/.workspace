@@ -11,6 +11,7 @@
 #include <math.h>
 #include "terrain.h"
 #include "pgm.h"
+#include <iostream>
 
 
 
@@ -42,7 +43,7 @@ Terrain::Terrain()
 Terrain::~Terrain()
 {
 
-
+	delete [] normaleFace;
 
 }
 
@@ -80,31 +81,31 @@ void Terrain::affiche()
 			p3 = points_terrain[indice + nb_pt_x + 1];
 			p4 = points_terrain[indice + nb_pt_x];
 
-			Vector3f sideOne( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
-			Vector3f sideTwo( p4.x - p1.x, p4.hauteur - p1.hauteur, p4.z - p1.z );
+			//Début de la face
 
-			Vector3f normal = (sideTwo ^ sideOne);
-			normal.normalize();
-			glNormal3f(normal.x, normal.y, normal.z);
+			//premier triangle
+			glNormal3f(p1.nx, p1.ny, p1.nz);
 			glTexCoord2f(p1.s,p1.t);
 			glVertex3f(p1.x, p1.hauteur, p1.z);
+			glNormal3f(p4.nx, p4.ny, p4.nz);
 			glTexCoord2f(p4.s,p4.t);
 			glVertex3f(p4.x, p4.hauteur, p4.z);
+			glNormal3f(p2.nx, p2.ny, p2.nz);
 			glTexCoord2f(p2.s,p2.t);
 			glVertex3f(p2.x, p2.hauteur, p2.z);
 
-			Vector3f sideThree( p2.x - p3.x, p2.hauteur - p3.hauteur, p2.z - p3.z );
-			Vector3f sideFour( p4.x - p3.x, p4.hauteur - p3.hauteur, p4.z - p3.z );
-
-			normal = (sideThree ^ sideFour);
-			normal.normalize();
-			glNormal3f(normal.x, normal.y, normal.z);
+			//deuxième triangle
+			glNormal3f(p2.nx, p2.ny, p2.nz);
 			glTexCoord2f(p2.s,p2.t);
 			glVertex3f(p2.x, p2.hauteur, p2.z);
+			glNormal3f(p4.nx, p4.ny, p4.nz);
 			glTexCoord2f(p4.s,p4.t);
 			glVertex3f(p4.x, p4.hauteur, p4.z);
+			glNormal3f(p3.nx, p3.ny, p3.nz);
 			glTexCoord2f(p3.s,p3.t);
 			glVertex3f(p3.x, p3.hauteur, p3.z);
+
+			//Fin de la face
 		}
 
 	glEnd();
@@ -137,6 +138,7 @@ void Terrain::calcule_coordonnees_texture(){
 }
 
 void Terrain::calcule_normales(){
+	nbface = 0;
 	for(int z=0; z < nb_pt_z-1; ++z)
 		for(int x=0; x < nb_pt_x-1; ++x){
 			int indice = x + z * nb_pt_x;
@@ -149,20 +151,53 @@ void Terrain::calcule_normales(){
 
 			Vector3f sideOne( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
 			Vector3f sideTwo( p4.x - p1.x, p4.hauteur - p1.hauteur, p4.z - p1.z );
-			Vector3f normal = (sideTwo ^ sideOne);
+			normaleFace[nbface] = (sideTwo ^ sideOne);
 
-
-
-
-
-
+			nbface++;
 
 			Vector3f sideThree( p2.x - p3.x, p2.hauteur - p3.hauteur, p2.z - p3.z );
 			Vector3f sideFour( p4.x - p3.x, p4.hauteur - p3.hauteur, p4.z - p3.z );
-			normal = (sideThree ^ sideFour);
+			normaleFace[nbface] = (sideThree ^ sideFour);
 
-
+			nbface++;
 		}
+
+		for(int z=0; z < nb_pt_z-1; ++z)
+			for(int x=0; x < nb_pt_x-1; ++x){
+				int indice = x + z * nb_pt_x;
+
+				Vector3f vecone;
+
+				Point_terrain p1, p2, p3, p4;
+				p1 = points_terrain[indice];
+				p2 = points_terrain[indice + 1];
+				p3 = points_terrain[indice + nb_pt_x + 1];
+				p4 = points_terrain[indice + nb_pt_x];
+
+				if( indice < nb_pt_x ){ vecone = normaleFace[indice-1] + normaleFace[indice] + normaleFace[indice+1]; }
+				if( indice >= nb_pt_x && indice <= (nb_pt_x-1)*(nb_pt_z-2) )
+				{
+					vecone = normaleFace[indice-1]
+							+ normaleFace[indice]
+							+ normaleFace[indice+1]
+							+ normaleFace[indice - nb_pt_x -1]
+							+ normaleFace[indice - nb_pt_x]
+							+ normaleFace[indice - nb_pt_x+1];
+				}
+
+				if( indice >= (nb_pt_x-1 * nb_pt_z-2) ){ normaleFace[indice - nb_pt_x -1] + normaleFace[indice - nb_pt_x] + normaleFace[indice - nb_pt_x+1]; }
+
+				vecone.normalize();
+				points_terrain[indice].nx = vecone.x;
+				points_terrain[indice].ny = vecone.y;
+				points_terrain[indice].nz = vecone.z;
+
+			}
+
+
+
+
+
 }
 
 
@@ -214,6 +249,8 @@ bool Terrain::creation(	float dx, float dy, float dz, const char *image_hauteurs
 			num++;
 		}
 	}
+
+	normaleFace = new Vector3f[ ((nb_pt_x-1) * (nb_pt_z-1)) * 2 ];
 
 	delete[] img;
 

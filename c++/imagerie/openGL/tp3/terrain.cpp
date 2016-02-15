@@ -152,7 +152,7 @@ void Terrain::calcule_normales(){
 
 					/*
 						1---2--
-						|  /|
+					    |  /|
 					    | / |
 					    3/--x--
 						|   |

@@ -383,15 +383,15 @@ void Terrain::calcule_normales(){
 				p6 = points_terrain[indice - nb_pt_x];
 				p7 = points_terrain[indice - nb_pt_x + 1];
 				/*
-                    |   |   |
+				    |   |   |
 				  --x---6---7--
-                    |  /|  /|
-                    | / | / |
-			      --5/--1---2--
-                    |  /|  /|
-                    | / | / |
+				    |  /|  /|
+				    | / | / |
+				  --5/--1---2--
+				    |  /|  /|
+				    | / | / |
 				  --4/--3---x--
-                    |   |   |
+				    |   |   |
 				*/
 
 				side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );

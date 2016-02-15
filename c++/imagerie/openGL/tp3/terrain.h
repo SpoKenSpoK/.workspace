@@ -66,8 +66,6 @@ private:
 	GLfloat terrain_specular [4];
 	GLfloat terrain_shininess [1];
 
-	Vector3f* normaleFace;
-
 	Texture texture;
 };
 

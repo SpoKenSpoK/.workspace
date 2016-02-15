@@ -467,7 +467,7 @@ GLvoid callback_display()
 	glLoadIdentity();
 
 	// On applique une translation et une rotation � la sc�ne pour simuler
-	// un d�placement de cam�ra.
+	// un d�placement de cam�ra
 	glTranslatef(xpos,0,zpos);
 	glRotatef(angle_x, 1,0,0);
 	glRotatef(angle_y, 0,1,0);

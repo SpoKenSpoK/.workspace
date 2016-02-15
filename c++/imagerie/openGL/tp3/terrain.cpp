@@ -43,8 +43,6 @@ Terrain::Terrain()
 Terrain::~Terrain()
 {
 
-	delete [] normaleFace;
-
 }
 
 
@@ -138,66 +136,147 @@ void Terrain::calcule_coordonnees_texture(){
 }
 
 void Terrain::calcule_normales(){
-	nbface = 0;
+	Vector3f supernormale(0,0,0);
+	Vector3f side_one, side_two;
+	Point_terrain p1, p2, p3, p4, p5, p6, p7, p8, p9;
+
 	for(int z=0; z < nb_pt_z-1; ++z)
 		for(int x=0; x < nb_pt_x-1; ++x){
 			int indice = x + z * nb_pt_x;
 
-			Point_terrain p1, p2, p3, p4;
-			p1 = points_terrain[indice];
-			p2 = points_terrain[indice + 1];
-			p3 = points_terrain[indice + nb_pt_x + 1];
-			p4 = points_terrain[indice + nb_pt_x];
+			if( points_terrain[indice].x == 0 ){
+				if( points_terrain[indice].z == 0 ){
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice + 1];
+					p3 = points_terrain[indice + nb_pt_x];
 
-			Vector3f sideOne( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
-			Vector3f sideTwo( p4.x - p1.x, p4.hauteur - p1.hauteur, p4.z - p1.z );
-			normaleFace[nbface] = (sideTwo ^ sideOne);
+					/*
+						1---2--
+						|  /|
+					    | / |
+					    3/--x--
+						|   |
+					*/
 
-			nbface++;
-
-			Vector3f sideThree( p2.x - p3.x, p2.hauteur - p3.hauteur, p2.z - p3.z );
-			Vector3f sideFour( p4.x - p3.x, p4.hauteur - p3.hauteur, p4.z - p3.z );
-			normaleFace[nbface] = (sideThree ^ sideFour);
-
-			nbface++;
-		}
-
-		for(int z=0; z < nb_pt_z-1; ++z)
-			for(int x=0; x < nb_pt_x-1; ++x){
-				int indice = x + z * nb_pt_x;
-
-				Vector3f vecone;
-
-				Point_terrain p1, p2, p3, p4;
-				p1 = points_terrain[indice];
-				p2 = points_terrain[indice + 1];
-				p3 = points_terrain[indice + nb_pt_x + 1];
-				p4 = points_terrain[indice + nb_pt_x];
-
-				if( indice < nb_pt_x ){ vecone = normaleFace[indice-1] + normaleFace[indice] + normaleFace[indice+1]; }
-				if( indice >= nb_pt_x && indice <= (nb_pt_x-1)*(nb_pt_z-2) )
-				{
-					vecone = normaleFace[indice-1]
-							+ normaleFace[indice]
-							+ normaleFace[indice+1]
-							+ normaleFace[indice - nb_pt_x -1]
-							+ normaleFace[indice - nb_pt_x]
-							+ normaleFace[indice - nb_pt_x+1];
+					side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
+					side_two = Vector3f( p3.x - p1.x, p3.hauteur - p1.hauteur, p3.z - p1.z );
+					supernormale = (side_two ^ side_one);
 				}
+				else if( points_terrain[indice].z == nb_pt_z-1 ){
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice + 1];
+					p3 = points_terrain[indice - nb_pt_x + 1];
+					p4 = points_terrain[indice - nb_pt_x];
 
-				if( indice >= (nb_pt_x-1 * nb_pt_z-2) ){ normaleFace[indice - nb_pt_x -1] + normaleFace[indice - nb_pt_x] + normaleFace[indice - nb_pt_x+1]; }
+					/*
+						|   |
+						4---3--
+						|  /|
+					    | / |
+					    1/--2--
+					*/
 
-				vecone.normalize();
-				points_terrain[indice].nx = vecone.x;
-				points_terrain[indice].ny = vecone.y;
-				points_terrain[indice].nz = vecone.z;
+				 	side_one = Vector3f( p3.x - p2.x, p3.hauteur - p2.hauteur, p3.z - p2.z );
+					side_two = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+					Vector3f normale_one = (side_one ^ side_two);
 
+				 	side_one = Vector3f( p3.x - p4.x, p3.hauteur - p4.hauteur, p3.z - p4.z );
+				 	side_two = Vector3f( p1.x - p4.x, p1.hauteur - p4.hauteur, p1.z - p4.z );
+					Vector3f normale_two = (side_two ^ side_one);
+
+					normale_one.normalize();
+					normale_two.normalize();
+					supernormale = (normale_one + normale_two);
+				}
+				else{
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice + 1];
+					p3 = points_terrain[indice + nb_pt_x];
+					p4 = points_terrain[indice - nb_pt_x];
+					p5 = points_terrain[indice - nb_pt_x + 1];
+
+					/*	|   |
+						4---5--
+						|  /|
+					    | / |
+					    1/--2--
+						|  /|
+					    | / |
+					    3/--x--
+						|   |
+					*/
+
+					side_one = Vector3f( p5.x - p4.x, p5.hauteur - p4.hauteur, p5.z - p4.z );
+					side_two = Vector3f( p1.x - p4.x, p1.hauteur - p4.hauteur, p1.z - p4.z );
+					Vector3f normale_one = (side_two ^ side_one);
+
+				 	side_one = Vector3f( p5.x - p2.x, p5.hauteur - p2.hauteur, p5.z - p2.z );
+				 	side_two = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+					Vector3f normale_two = (side_one ^ side_two);
+
+					side_one = Vector3f( p2.x - p1.x, p2.hauteur - p1.hauteur, p2.z - p1.z );
+					side_two = Vector3f( p3.x - p1.x, p3.hauteur - p1.hauteur, p3.z - p1.z );
+					Vector3f normale_three = (side_two ^ side_one);
+
+					normale_one.normalize();
+					normale_two.normalize();
+					normale_three.normalize();
+					supernormale = (normale_one + normale_two + normale_three);
+				}
+			}
+
+			else if( point_terrain[indice].x == nb_pt_x-1 ){
+				if( point_terrain[indice].z == 0 ){
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice + nb_pt_x];
+					p3 = points_terrain[indice + nb_pt_x - 1];
+					p4 = points_terrain[indice - 1];
+
+					/*
+						--4---1
+						  |  /|
+						  | / |
+						--3/--2
+						  |   |
+					*/
+
+					side_one = Vector3f( p1.x - p4.x, p1.hauteur - p4.hauteur, p1.z - p4.z );
+					side_two = Vector3f( p3.x - p4.x, p3.hauteur - p4.hauteur, p3.z - p4.z );
+					Vector3f normale_one = (side_two ^ side_one);
+
+				 	side_one = Vector3f( p1.x - p2.x, p1.hauteur - p2.hauteur, p1.z - p2.z );
+				 	side_two = Vector3f( p3.x - p2.x, p3.hauteur - p2.hauteur, p3.z - p2.z );
+					Vector3f normale_two = (side_one ^ side_two);
+
+					normale_one.normalize();
+					normale_two.normalize();
+					supernormale = (normale_one + normale_two);
+				}
+				else if( point_terrain[indice].z == nb_pt_z-1 ){
+					p1 = points_terrain[indice];
+					p2 = points_terrain[indice - 1];
+					p3 = points_terrain[indice - nb_pt_x - 1];
+					p4 = points_terrain[indice - nb_pt_x];
+
+					/*
+						  |   |
+						--3---4
+						  |  /|
+						  | / |
+						--2/--1
+					*/
+
+
+				}
 			}
 
 
 
-
-
+			supernormale.normalize();
+			points_terrain[indice].nx = supernormale.x;
+			points_terrain[indice].ny = supernormale.y;
+			points_terrain[indice].nz = supernormale.z;
+		}
 }
 
 
@@ -249,8 +328,6 @@ bool Terrain::creation(	float dx, float dy, float dz, const char *image_hauteurs
 			num++;
 		}
 	}
-
-	normaleFace = new Vector3f[ ((nb_pt_x-1) * (nb_pt_z-1)) * 2 ];
 
 	delete[] img;
 

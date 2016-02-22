@@ -14,8 +14,8 @@
 #include <math.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include "terrain.h"
 #include "texture.hpp"
+#include "bouffee.hpp"
 
 int SCREEN_WIDTH  = 800;								// Largeur de la fen�tre OpenGL
 int SCREEN_HEIGHT = 600;								// Hauteur de la fen�tre OpenGl
@@ -33,8 +33,7 @@ GLfloat Light0Ambient[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 
-Terrain	terrain;										// D�claration d'un objet terrain
-
+Bouffee bouffee;
 ///////////////////////////////////////////////////////////////////////////////
 // Intitialisation de certains param�tres d'OpenGL.
 //-----------------------------------------------------------------------------
@@ -61,7 +60,28 @@ GLvoid initGL()
 	glEnable(GL_LIGHTING);								// Activation de l'�clairage g�n�ral
 }
 
-
+float mesure_temps_ecoule()
+{
+	static long temps_precedent = -1;
+	long
+	temps_actuel;
+	float dt = 0;
+	// Mesure du temps actuel :
+	temps_actuel = glutGet(GLUT_ELAPSED_TIME);
+	//  - Si c'est la première fois que la fonction est appelée :
+	if( temps_precedent == -1 )
+	{
+		temps_precedent = glutGet(GLUT_ELAPSED_TIME);
+		dt = 0;
+	}
+	//  - Sinon :
+	else
+	{
+		dt = (float)(temps_actuel - temps_precedent) / 1000.0f;
+		temps_precedent = temps_actuel;
+	}
+	return dt;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Affiche les diff�rents objets de la sc�ne.
@@ -73,9 +93,8 @@ GLvoid initGL()
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-	terrain.affiche();							// Affiche le terrain
 
-
+	bouffee.affiche();
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
 
@@ -97,12 +116,14 @@ GLvoid callback_display()
 	// On initialise la matrice de vue avec la matrice identit�.
 	glLoadIdentity();
 
+	float dt = mesure_temps_ecoule();
+	bouffee.anime(dt);
+
 	// On applique une translation et une rotation � la sc�ne pour simuler
 	// un d�placement de cam�ra.
 	glTranslatef(-xpos,-ypos,-zpos);
 	glRotatef(angle_x, 1,0,0);
 	glRotatef(angle_y, 0,1,0);
-	glTranslatef(-terrain.centre_x(),0,-terrain.centre_z());
 
 	// On re-sp�cifie la position des sources de lumi�re avec pour qu'elles
 	// soient aussi affect�es par la translation et la rotation qu'on vient
@@ -265,10 +286,6 @@ void initialise_scene()
 	// On cr�e le terrain au moyen d'une image en niveaux de gris au format PGM.
 	// On espace les points de 1.0 unit� selon x, de 0.1 unit� selon y, de 1.0 unit� selon z
 	glEnable(GL_TEXTURE_2D);
-	terrain.creation( 1.0, 0.1, 1.0, "terrain_128x128.pgm" );
-	terrain.calcule_coordonnees_texture();
-	terrain.calcule_normales();
-	terrain.charger("terrain_texture.png");
 }
 
 
@@ -289,7 +306,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow("Terrain");
+	glutCreateWindow("Bouffee");
 
 	// Intitialisation de param�tres d'OpenGL
 	initGL();

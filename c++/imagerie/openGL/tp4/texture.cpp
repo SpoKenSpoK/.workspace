@@ -32,7 +32,7 @@ bool Texture::charger(const char* file_name, bool mipmap){
 	else return false;
 }
 
-void Texture::utiliser() { glBindTexture(GL_TEXTURE_2D, id); }
+void Texture::utiliser(){ glBindTexture(GL_TEXTURE_2D, id); }
 void Texture::definir_filtrage(GLint mode_min, GLint mode_mag){
 	utiliser();
 

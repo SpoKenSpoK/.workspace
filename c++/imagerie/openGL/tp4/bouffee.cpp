@@ -1,18 +1,18 @@
 #include "bouffee.hpp"
-#include "texture.hpp"
 
-Bouffee::Bouffee(float _xpos, float _ypos, float _zpos, float _taille, float _vitesse_x, float _vitesse_y, float _vitesse_z, float _vie)
-    :xpos(_xpos), ypos(_ypos), zpos(_zpos), taille(_taille), vitesse_x(_vitesse_x), vitesse_y(_vitesse_y), vitesse_z(_vitesse_z), vie(_vie)
+
+Bouffee::Bouffee(float _xpos, float _ypos, float _zpos, float _vie, float _taille, float _vitesse_x, float _vitesse_y, float _vitesse_z)
+    :xpos(_xpos), ypos(_ypos), zpos(_zpos), vie(_vie), taille(_taille), vitesse_x(_vitesse_x), vitesse_y(_vitesse_y), vitesse_z(_vitesse_z)
 {}
 
 void Bouffee::anime(float temps){
-    xpos += xpos + vitesse_x * temps;
-    ypos += ypos + vitesse_y * temps;
-    zpos += zpos + vitesse_z * temps;
+    xpos = (xpos + vitesse_x) * temps;
+    ypos = (ypos + vitesse_y) * temps;
+    zpos = (zpos + vitesse_z) * temps;
     vie -= temps;
 }
 
-void Bouffee::affiche(){
+void Bouffee::affiche(Texture* texture){
     // Comme on ne veut pas que ce quadrilatère soit affecté
     // par la lumière, on désactive l’éclairage juste avant
     // de l’afficher, et on le réactivera juste après. Vous
@@ -31,13 +31,9 @@ void Bouffee::affiche(){
     // glBegin(GL_QUADS)
     // ...
     // glEnd()
-    Texture texture;
-    texture.charger("fumee.tga");
-    texture.definir_filtrage(GL_LINEAR, GL_LINEAR);
-	texture.definir_bouclage(GL_CLAMP, GL_CLAMP);
-	texture.definir_melange(GL_MODULATE);
-    texture.utiliser();
 
+    texture->utiliser();
+    glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
         glTexCoord2f(0,0);
         glVertex3f(xpos-taille/2, ypos, zpos-taille/2);
@@ -48,6 +44,7 @@ void Bouffee::affiche(){
         glTexCoord2f(1,0);
         glVertex3f(xpos-taille/2, ypos, zpos+taille/2);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     // On désactive le blending
     glDisable(GL_BLEND);

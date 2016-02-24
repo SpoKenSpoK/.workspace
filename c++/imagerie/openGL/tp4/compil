@@ -1,1 +1,1 @@
-g++ -Wall main.cpp texture.cpp bouffee.cpp -o bouffee -lglut -lGLU -lGL -L.
+g++ -Wall main.cpp fumee.cpp texture.cpp bouffee.cpp -o bouffee -lglut -lGLU -lGL -L.

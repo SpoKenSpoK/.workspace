@@ -34,6 +34,8 @@ GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 
 Bouffee bouffee;
+Texture* texture;
+Fumee* fumee
 ///////////////////////////////////////////////////////////////////////////////
 // Intitialisation de certains param�tres d'OpenGL.
 //-----------------------------------------------------------------------------
@@ -44,7 +46,7 @@ Bouffee bouffee;
 ///////////////////////////////////////////////////////////////////////////////
 GLvoid initGL()
 {
-	glClearColor(0.7, 0.9, 1.0, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
+	glClearColor(0.0, 0.0, 0.0, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
     glShadeModel(GL_SMOOTH);							// Mod�le d'ombrage : lissage de Gouraud
 	glEnable(GL_CULL_FACE);								// Ne traite pas les faces cach�es
 	glEnable(GL_DEPTH_TEST);							// Active le Z-Buffer
@@ -58,6 +60,11 @@ GLvoid initGL()
 	glEnable(GL_LIGHT0);								// Activation de la source de lumi�re 0
 
 	glEnable(GL_LIGHTING);								// Activation de l'�clairage g�n�ral
+
+    texture->charger("fumee.tga");
+    texture->definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture->definir_bouclage(GL_CLAMP, GL_CLAMP);
+	texture->definir_melange(GL_MODULATE);
 }
 
 float mesure_temps_ecoule()
@@ -93,8 +100,7 @@ float mesure_temps_ecoule()
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-
-	bouffee.affiche();
+	fummee->affiche();
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
 
@@ -117,7 +123,7 @@ GLvoid callback_display()
 	glLoadIdentity();
 
 	float dt = mesure_temps_ecoule();
-	bouffee.anime(dt);
+	fumee->anime(dt);
 
 	// On applique une translation et une rotation � la sc�ne pour simuler
 	// un d�placement de cam�ra.

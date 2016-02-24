@@ -16,6 +16,7 @@
 #include <GL/glut.h>
 #include "texture.hpp"
 #include "bouffee.hpp"
+#include "fumee.hpp"
 
 int SCREEN_WIDTH  = 800;								// Largeur de la fen�tre OpenGL
 int SCREEN_HEIGHT = 600;								// Hauteur de la fen�tre OpenGl
@@ -34,8 +35,8 @@ GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 
 Bouffee bouffee;
-Texture* texture;
-Fumee* fumee
+Texture texture;
+Fumee* fumee;
 ///////////////////////////////////////////////////////////////////////////////
 // Intitialisation de certains param�tres d'OpenGL.
 //-----------------------------------------------------------------------------
@@ -61,10 +62,11 @@ GLvoid initGL()
 
 	glEnable(GL_LIGHTING);								// Activation de l'�clairage g�n�ral
 
-    texture->charger("fumee.tga");
-    texture->definir_filtrage(GL_LINEAR, GL_LINEAR);
-	texture->definir_bouclage(GL_CLAMP, GL_CLAMP);
-	texture->definir_melange(GL_MODULATE);
+    texture.charger("fumee.tga");
+    texture.definir_filtrage(GL_LINEAR, GL_LINEAR);
+	texture.definir_bouclage(GL_CLAMP, GL_CLAMP);
+	texture.definir_melange(GL_MODULATE);
+	fumee = new Fumee(0,0,0,1,0,&texture);
 }
 
 float mesure_temps_ecoule()
@@ -100,7 +102,7 @@ float mesure_temps_ecoule()
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-	fummee->affiche();
+	fumee->affiche();
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
 
@@ -312,7 +314,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow("Bouffee");
+	glutCreateWindow("Fumee_Test_XXXXXXX");
 
 	// Intitialisation de param�tres d'OpenGL
 	initGL();
@@ -330,6 +332,8 @@ int main(int argc, char *argv[])
 
 	// Boucle principale de Glut.
 	glutMainLoop();
+
+	delete fumee;
 
 	// Code de retour
 	return 1;

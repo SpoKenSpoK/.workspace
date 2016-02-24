@@ -1,0 +1,1 @@
+g++ -Wall maison.cpp texture.cpp -o maison -lglut -lGLU -lGL -L.

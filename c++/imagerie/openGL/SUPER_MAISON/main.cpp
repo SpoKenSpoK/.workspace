@@ -102,9 +102,9 @@ float mesure_temps_ecoule()
 ///////////////////////////////////////////////////////////////////////////////
 void affiche_scene()
 {
-	
+	glDepthMask(GL_FALSE);
 	fumee->affiche();
-	
+	glDepthMask(GL_TRUE);
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
 

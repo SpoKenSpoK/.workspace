@@ -33,10 +33,8 @@ void Fumee::anime(float temps){
 void Fumee::affiche(){
     list<Bouffee>::iterator i;
     i = list_bouffee.begin();
-    glDepthMask(GL_FALSE);
     while( i!= list_bouffee.end() ){
             i->affiche(texture);
             ++i;
     }
-    glDepthMask(GL_TRUE);
 }

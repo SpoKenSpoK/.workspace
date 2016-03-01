@@ -1,0 +1,1 @@
+g++ -Wall main.cpp objet3d.cpp vector3f.cpp -o main -lglut -lGLU -lGL -L.

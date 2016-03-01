@@ -1,10 +1,10 @@
-#include <iostream>
 #include <fstream>
-#include <cstdlib>
 #include <stdexcept>
+#include <list>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "objet3d.hpp"
+#include "vector3f.h"
 
 Objet3D::Objet3D(Point* _tabPoints, Face* _tabFaces, unsigned int _nbPoints, unsigned int _nbFaces)
     :tabPoints(_tabPoints), tabFaces(_tabFaces), nbPoints(_nbPoints), nbFaces(_nbFaces)
@@ -65,6 +65,8 @@ void Objet3D::charger(const char* filename){
             tabFaces[i].c = svalue;
         }
 
+        calcul_normal();
+
         file.close(); // Fermeture du fichier
     }
     else
@@ -73,13 +75,16 @@ void Objet3D::charger(const char* filename){
 
 
 void Objet3D::affiche(){
-	glBegin(GL_TRIANGLES);
-		for(unsigned int i=0; i<nbFaces; ++i){
-			glVertex3f(tabPoints[tabFaces[i].a].x, tabPoints[tabFaces[i].a].y, tabPoints[tabFaces[i].a].z);
-			glVertex3f(tabPoints[tabFaces[i].b].x, tabPoints[tabFaces[i].b].y, tabPoints[tabFaces[i].b].z);
-			glVertex3f(tabPoints[tabFaces[i].c].x, tabPoints[tabFaces[i].c].y, tabPoints[tabFaces[i].c].z);
-		}
-	glEnd();
+   glBegin(GL_TRIANGLES);
+        for(unsigned int i=0; i<nbFaces; ++i){
+            glNormal3f(tabPoints[tabFaces[i].a].n.x, tabPoints[tabFaces[i].a].n.y, tabPoints[tabFaces[i].a].n.z);
+    		glVertex3f(tabPoints[tabFaces[i].a].x, tabPoints[tabFaces[i].a].y, tabPoints[tabFaces[i].a].z);
+            glNormal3f(tabPoints[tabFaces[i].b].n.x, tabPoints[tabFaces[i].b].n.y, tabPoints[tabFaces[i].b].n.z);
+    		glVertex3f(tabPoints[tabFaces[i].b].x, tabPoints[tabFaces[i].b].y, tabPoints[tabFaces[i].b].z);
+            glNormal3f(tabPoints[tabFaces[i].c].n.x, tabPoints[tabFaces[i].c].n.y, tabPoints[tabFaces[i].c].n.z);
+    		glVertex3f(tabPoints[tabFaces[i].c].x, tabPoints[tabFaces[i].c].y, tabPoints[tabFaces[i].c].z);
+        }
+   glEnd();
 }
 
 
@@ -100,5 +105,38 @@ void Objet3D::interpolation(Objet3D *debut, Objet3D *fin, float t){
 		tabPoints[i].x = debut->tabPoints[i].x + t*(fin->tabPoints[i].x - debut->tabPoints[i].x);
 		tabPoints[i].y = debut->tabPoints[i].y + t*(fin->tabPoints[i].y - debut->tabPoints[i].y);
 		tabPoints[i].z = debut->tabPoints[i].z + t*(fin->tabPoints[i].z - debut->tabPoints[i].z);
+        tabPoints[i].n = debut->tabPoints[i].n;
 	}
+}
+
+void Objet3D::calcul_normal(){
+
+    for(unsigned int i=0; i<nbPoints; ++i){
+        list<Vector3f> ls;
+        for(unsigned int j=0; j<nbFaces; ++j){
+            if(tabFaces[j].a == i || tabFaces[j].b == i || tabFaces[j].c == i){
+                float abx = tabPoints[tabFaces[j].b].x - tabPoints[tabFaces[j].a].x;
+                float aby = tabPoints[tabFaces[j].b].y - tabPoints[tabFaces[j].a].y;
+                float abz = tabPoints[tabFaces[j].b].z - tabPoints[tabFaces[j].a].z;
+                Vector3f v1(abx, aby, abz);
+                float acx = tabPoints[tabFaces[j].c].x - tabPoints[tabFaces[j].a].x;
+                float acy = tabPoints[tabFaces[j].c].y - tabPoints[tabFaces[j].a].y;
+                float acz = tabPoints[tabFaces[j].c].z - tabPoints[tabFaces[j].a].z;
+                Vector3f v2(acx, acy, acz);
+
+                Vector3f n = v1 ^ v2;
+                ls.push_back(n);
+            }
+            list<Vector3f>::iterator it;
+            it = ls.begin();
+            tabPoints[i].n = *it;
+            it++;
+            while(it != ls.end()){
+                tabPoints[i].n += *it;
+                it++;
+            }
+            tabPoints[i].n /= ls.size();
+            tabPoints[i].n.normalize();
+        }
+    }
 }

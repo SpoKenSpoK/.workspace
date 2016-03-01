@@ -54,7 +54,7 @@ GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 ///////////////////////////////////////////////////////////////////////////////
 GLvoid initGL()
 {
-	glClearColor(0.0, 0.0, 0.0, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
+	glClearColor(0.0, 0.5, 0.7, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
     glShadeModel(GL_SMOOTH);							// Mod�le d'ombrage : lissage de Gouraud
 	glEnable(GL_CULL_FACE);								// Ne traite pas les faces cach�es
 	glEnable(GL_DEPTH_TEST);							// Active le Z-Buffer
@@ -69,7 +69,7 @@ GLvoid initGL()
 
 	glEnable(GL_LIGHTING);								// Activation de l'�clairage g�n�ral
 
-	obj_visage.charger("visage_normal.off");
+	obj_visage.charger("visage_tristesse.off");
 	obj_normal.charger("visage_normal.off");
 	obj_colere.charger("visage_colere.off");
 	obj_degout.charger("visage_degout.off");
@@ -113,7 +113,7 @@ float mesure_temps_ecoule()
 void affiche_scene()
 {
 
-	//obj_visage.affiche();
+	obj_visage.affiche();
 
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
@@ -156,8 +156,6 @@ GLvoid callback_display()
 	glFlush();
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Call-back : redimensionnement de la fen�tre.
 //-----------------------------------------------------------------------------
@@ -196,6 +194,20 @@ GLvoid callback_keyboard(unsigned char key, int x, int y)
 	{
 		case KEY_ESC:						// 'ECHAP' :
 			exit(1);						// on quitte le programme
+			break;
+
+		case '+':
+			if(valeur_interpolation < 0.9){
+				valeur_interpolation += 0.1;
+				obj_visage.interpolation(&obj_tristesse, &obj_joie, valeur_interpolation);
+			}
+			break;
+
+		case '-':
+			if(valeur_interpolation > 0){
+				valeur_interpolation -= 0.1;
+				obj_visage.interpolation(&obj_tristesse, &obj_joie, valeur_interpolation);
+			}
 			break;
 	}
 }
@@ -320,6 +332,7 @@ void initialise_scene()
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+
 	// Initialisation de param�tres de Glut
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

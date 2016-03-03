@@ -43,7 +43,7 @@ Objet3D debut;
 Objet3D fin;
 
 // Param�tres de la source de lumi�re 0 (directionnelle)
-GLfloat Light0Position[]= { -4.0f, 4.0f, 4.0f, 0.0f };
+GLfloat Light0Position[]= { 0.0f, 4.0f, 4.0f, 0.0f };
 GLfloat Light0Ambient[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -83,8 +83,8 @@ GLvoid initGL()
 	obj_surprise.charger("visage_surprise.off");
 	obj_tristesse.charger("visage_tristesse.off");
 
-	debut = obj_visage;
-	fin = obj_joie;
+	debut(obj_visage);
+	fin(obj_joie);
 }
 
 float mesure_temps_ecoule()

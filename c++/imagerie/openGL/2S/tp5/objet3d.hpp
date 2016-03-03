@@ -27,6 +27,7 @@ private:
 public:
     Objet3D(Point* =0, Face* =0, unsigned int =0, unsigned int =0);
     ~Objet3D();
+    Objet3D(const Objet3D & );
     void charger(const char* );
     void affiche();
     void interpolation(Objet3D* , Objet3D* , float );

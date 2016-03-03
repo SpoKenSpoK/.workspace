@@ -11,10 +11,20 @@ Objet3D::Objet3D(Point* _tabPoints, Face* _tabFaces, unsigned int _nbPoints, uns
 {}
 
 Objet3D::~Objet3D() {
-    if(tabFaces != NULL && tabPoints != NULL){
         delete [] tabFaces;
         delete [] tabPoints;
-    }
+}
+
+Objet3D::Objet3D(const Objet3D & Source) {
+    nbPoints = Source.nbPoints;
+    nbFaces = Source.nbFaces;
+    tabPoints = new Point[nbPoints];
+    for(unsigned int i=0; i< nbPoints; ++i)
+        tabPoints[i] = Source.tabPoints[i];
+
+    tabFaces = new Face[nbFaces];
+    for(unsigned int i=0; i< nbFaces; ++i)
+        tabFaces[i] = Source.tabFaces[i];
 }
 
 void Objet3D::charger(const char* filename){
@@ -132,7 +142,7 @@ void Objet3D::calcul_normal(){
 
     calcul_normal_faces();
 
-    int nb_normales_par_sommet[nbPoints];
+    unsigned int nb_normales_par_sommet[nbPoints];
 
     for(unsigned int i=0; i<nbPoints; ++i){
         tabPoints[i].n = Vector3f(0,0,0);
@@ -160,7 +170,4 @@ void Objet3D::calcul_normal(){
         tabPoints[i].n /= nb_normales_par_sommet[i];
         tabPoints[i].n.normalize();
     }
-
-
-
 }

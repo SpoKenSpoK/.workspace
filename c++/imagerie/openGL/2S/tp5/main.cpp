@@ -16,6 +16,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "objet3d.hpp"
+#include "structgeom.h"
 
 int SCREEN_WIDTH  = 800;								// Largeur de la fen�tre OpenGL
 int SCREEN_HEIGHT = 600;								// Hauteur de la fen�tre OpenGl
@@ -38,11 +39,15 @@ Objet3D obj_peur;
 Objet3D obj_surprise;
 Objet3D obj_tristesse;
 
+Objet3D debut;
+Objet3D fin;
+
 // Param�tres de la source de lumi�re 0 (directionnelle)
-GLfloat Light0Position[]= { -4.0f, 4.0f, -4.0f, 0.0f };
+GLfloat Light0Position[]= { -4.0f, 4.0f, 4.0f, 0.0f };
 GLfloat Light0Ambient[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 GLfloat Light0Diffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
 GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Intitialisation de certains param�tres d'OpenGL.
@@ -54,9 +59,9 @@ GLfloat Light0Specular[]= { 0.5f, 0.5f, 0.5f, 1.0f };
 ///////////////////////////////////////////////////////////////////////////////
 GLvoid initGL()
 {
-	glClearColor(0.0, 0.0, 0.0, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
+	glClearColor(0.0, 0.5, 0.7, 1);						// Couleur servant � effacer la fen�tre (bleu ciel)
     glShadeModel(GL_SMOOTH);							// Mod�le d'ombrage : lissage de Gouraud
-	glEnable(GL_CULL_FACE);								// Ne traite pas les faces cach�es
+	//glEnable(GL_CULL_FACE);								// Ne traite pas les faces cach�es
 	glEnable(GL_DEPTH_TEST);							// Active le Z-Buffer
 	glDepthFunc(GL_LEQUAL);								// Mode de fonctionnement du Z-Buffer
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Active la correction de perspective (pour ombrage, texture, ...)
@@ -77,6 +82,9 @@ GLvoid initGL()
 	obj_peur.charger("visage_peur.off");
 	obj_surprise.charger("visage_surprise.off");
 	obj_tristesse.charger("visage_tristesse.off");
+
+	debut = obj_visage;
+	fin = obj_joie;
 }
 
 float mesure_temps_ecoule()
@@ -113,7 +121,7 @@ float mesure_temps_ecoule()
 void affiche_scene()
 {
 
-	//obj_visage.affiche();
+	obj_visage.affiche();
 
 	glutSwapBuffers();							// Affiche la sc�ne (affichage en double buffer)
 }
@@ -156,8 +164,6 @@ GLvoid callback_display()
 	glFlush();
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Call-back : redimensionnement de la fen�tre.
 //-----------------------------------------------------------------------------
@@ -197,10 +203,66 @@ GLvoid callback_keyboard(unsigned char key, int x, int y)
 		case KEY_ESC:						// 'ECHAP' :
 			exit(1);						// on quitte le programme
 			break;
+
+		case '+':
+			if(valeur_interpolation < 0.9){
+				valeur_interpolation += 0.1;
+				obj_visage.interpolation(&debut, &fin, valeur_interpolation);
+			}
+			break;
+
+		case '-':
+			if(valeur_interpolation > 0){
+				valeur_interpolation -= 0.1;
+				obj_visage.interpolation(&debut, &fin, valeur_interpolation);
+			}
+			break;
+		//changement debut interpolation
+		case 'a':
+			debut = obj_normal;
+			break;
+		case 'z':
+			debut = obj_colere;
+			break;
+		case 'e':
+			debut = obj_degout;
+			break;
+		case 'r':
+			debut = obj_joie;
+			break;
+		case 't':
+			debut = obj_peur;
+			break;
+		case 'y':
+			debut = obj_surprise;
+			break;
+		case 'u':
+			debut = obj_tristesse;
+			break;
+		//changement fin interpolation
+		case 'q':
+			fin = obj_normal;
+			break;
+		case 's':
+			fin = obj_colere;
+			break;
+		case 'd':
+			fin = obj_degout;
+			break;
+		case 'f':
+			fin = obj_joie;
+			break;
+		case 'g':
+			fin = obj_peur;
+			break;
+		case 'h':
+			fin = obj_surprise;
+			break;
+		case 'j':
+			fin = obj_tristesse;
+			break;
 	}
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Call-back : gestion des touches speciales du clavier.
@@ -320,6 +382,7 @@ void initialise_scene()
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+
 	// Initialisation de param�tres de Glut
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

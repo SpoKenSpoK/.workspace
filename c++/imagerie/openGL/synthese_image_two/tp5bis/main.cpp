@@ -16,7 +16,6 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "objet3d.hpp"
-#include "structgeom.h"
 
 int SCREEN_WIDTH  = 800;								// Largeur de la fen�tre OpenGL
 int SCREEN_HEIGHT = 600;								// Hauteur de la fen�tre OpenGl

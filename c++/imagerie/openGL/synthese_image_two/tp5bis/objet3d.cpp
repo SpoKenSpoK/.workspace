@@ -29,6 +29,7 @@ void Objet3D::charger(const char* filename){
 
 
         file >> nbPoints >> nbFaces;
+        std::cerr<<"Nom du fichier : "<<filename<<" | "<<"nbPoints : "<<nbPoints<<" - "<<"nbFaces : "<<nbFaces<<std::endl;
 
         tabPoints = new Point[nbPoints];    // Allocation dynamique du tableau de Point ayant pour taile le nombre de coordonnées
         tabFaces = new Face[nbFaces];      // Allocation dynamique du tableau de Face prennant comme taille le nombre de faces
@@ -105,38 +106,61 @@ void Objet3D::interpolation(Objet3D *debut, Objet3D *fin, float t){
 		tabPoints[i].x = debut->tabPoints[i].x + t*(fin->tabPoints[i].x - debut->tabPoints[i].x);
 		tabPoints[i].y = debut->tabPoints[i].y + t*(fin->tabPoints[i].y - debut->tabPoints[i].y);
 		tabPoints[i].z = debut->tabPoints[i].z + t*(fin->tabPoints[i].z - debut->tabPoints[i].z);
-        tabPoints[i].n = debut->tabPoints[i].n;
+        //tabPoints[i].n = debut->tabPoints[i].n;
 	}
+
+    calcul_normal();
+}
+
+void Objet3D::calcul_normal_faces(){
+    for(unsigned int j=0; j<nbFaces; ++j){
+        float abx = tabPoints[tabFaces[j].b].x - tabPoints[tabFaces[j].a].x;
+        float aby = tabPoints[tabFaces[j].b].y - tabPoints[tabFaces[j].a].y;
+        float abz = tabPoints[tabFaces[j].b].z - tabPoints[tabFaces[j].a].z;
+        Vector3f v1(abx, aby, abz);
+        float acx = tabPoints[tabFaces[j].c].x - tabPoints[tabFaces[j].a].x;
+        float acy = tabPoints[tabFaces[j].c].y - tabPoints[tabFaces[j].a].y;
+        float acz = tabPoints[tabFaces[j].c].z - tabPoints[tabFaces[j].a].z;
+        Vector3f v2(acx, acy, acz);
+
+        Vector3f n = v1 ^ v2;
+        tabFaces[j].n = n;
+    }
 }
 
 void Objet3D::calcul_normal(){
 
-    for(unsigned int i=0; i<nbPoints; ++i){
-        list<Vector3f> ls;
-        for(unsigned int j=0; j<nbFaces; ++j){
-            if(tabFaces[j].a == i || tabFaces[j].b == i || tabFaces[j].c == i){
-                float abx = tabPoints[tabFaces[j].b].x - tabPoints[tabFaces[j].a].x;
-                float aby = tabPoints[tabFaces[j].b].y - tabPoints[tabFaces[j].a].y;
-                float abz = tabPoints[tabFaces[j].b].z - tabPoints[tabFaces[j].a].z;
-                Vector3f v1(abx, aby, abz);
-                float acx = tabPoints[tabFaces[j].c].x - tabPoints[tabFaces[j].a].x;
-                float acy = tabPoints[tabFaces[j].c].y - tabPoints[tabFaces[j].a].y;
-                float acz = tabPoints[tabFaces[j].c].z - tabPoints[tabFaces[j].a].z;
-                Vector3f v2(acx, acy, acz);
+    calcul_normal_faces();
 
-                Vector3f n = v1 ^ v2;
-                ls.push_back(n);
-            }
-            list<Vector3f>::iterator it;
-            it = ls.begin();
-            tabPoints[i].n = *it;
-            it++;
-            while(it != ls.end()){
-                tabPoints[i].n += *it;
-                it++;
-            }
-            tabPoints[i].n /= ls.size();
-            tabPoints[i].n.normalize();
-        }
+    int nb_normales_par_sommet[nbPoints];
+
+    for(unsigned int i=0; i<nbPoints; ++i){
+        tabPoints[i].n = Vector3f(0,0,0);
+        nb_normales_par_sommet[i]=0;
     }
+
+    unsigned int a,b,c;
+
+    for(unsigned int i=0; i<nbFaces; ++i){
+
+        a = tabFaces[i].a;
+        nb_normales_par_sommet[a]++;
+        tabPoints[a].n += tabFaces[i].n;
+
+        b = tabFaces[i].b;
+        nb_normales_par_sommet[b]++;
+        tabPoints[b].n += tabFaces[i].n;
+
+        c = tabFaces[i].c;
+        nb_normales_par_sommet[c]++;
+        tabPoints[c].n += tabFaces[i].n;
+    }
+
+    for(unsigned int i=0; i<nbPoints; ++i){
+        tabPoints[i].n /= nb_normales_par_sommet[i];
+        tabPoints[i].n.normalize();
+    }
+
+
+
 }

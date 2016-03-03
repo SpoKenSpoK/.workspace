@@ -13,7 +13,7 @@ public:
     inline virtual ~objetGeometrique() { if(vertices != 0) delete [] vertices; };
 	virtual void calculPosition_sommets() =0;
     inline float* returnVertices() const { return vertices; }
-    inline int getNbP() const { return nbPts; }
+    inline const unsigned int & getNbP() const { return nbPts; }
     inline void setNbP(const int& _nbPts) { nbPts = _nbPts; }
 };
 

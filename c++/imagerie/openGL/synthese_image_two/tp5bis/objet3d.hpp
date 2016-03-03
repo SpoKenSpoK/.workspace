@@ -14,6 +14,7 @@ struct Face{
     unsigned int a; // Indice de la ligne à lire pour retrouver les coordonnées du premier sommet de la face
     unsigned int b;
     unsigned int c;
+    Vector3f n;
 };
 
 class Objet3D {
@@ -29,6 +30,7 @@ public:
     void charger(const char* );
     void affiche();
     void interpolation(Objet3D* , Objet3D* , float );
+    void calcul_normal_faces();
     void calcul_normal();
 
     inline unsigned int get_nbFaces() const { return nbFaces; }

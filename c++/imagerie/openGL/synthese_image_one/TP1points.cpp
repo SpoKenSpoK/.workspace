@@ -15,7 +15,7 @@
 using namespace std;
 
 GLuint leVBO;
-Cercle cercle(2500, 0, 0, 1);
+Cercle cercle(9, 0, 0, 1);
 
 static void RenderScene()
 {
@@ -97,7 +97,6 @@ static void CreateVertexBuffer()
  	glGenBuffers(1, &leVBO); //génération d'une référence de buffer object
 	glBindBuffer(GL_ARRAY_BUFFER, leVBO); //liaison du buffer avec un type tableau de données
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* cercle.getNbP()*3, cercle.returnVertices(), GL_STATIC_DRAW); //création et initialisation du container de données (3 sommets -> 9 float)
-
 }
 
 

@@ -27,6 +27,7 @@ class GestionEvenements : public osgGA::GUIEventHandler
     virtual bool handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
     osg::ref_ptr<osg::Group> scene;
     osg::ref_ptr<osg::Switch> switchNode;
+    bool on;
 };
 
 bool GestionEvenements::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa)
@@ -38,24 +39,42 @@ bool GestionEvenements::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActi
         {
             case osgGA::GUIEventAdapter::KEY_Left :
             // On réagit à l'appui sur la flèche gauche
-            break;
-            case '1':
-                switchNode->setSingleChildOn(1);
-                scene->addChild(switchNode.get());
+            break ;
+            case '1' :
+                if(on){
+                    switchNode->setAllChildrenOff();
+                    on = false;
+                }
 
-            break;
-            case '2':
-                switchNode->setSingleChildOn(2);
-                scene->addChild(switchNode.get());
+                else{
+                    switchNode->setAllChildrenOn();
+                    on = true;
+                }
 
-            break;
-            case '3':
-                switchNode->setSingleChildOn(3);
-                scene->addChild(switchNode.get());
-            break;
+            break ;
         }
     break;
+
+    case osgGA::GUIEventAdapter::PUSH :
+    // clic souris
+    {
+        // coordonnées écran de la souris au moment du clic
+        int x = ea.getX();
+        int y = ea.getY();
+        if( ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+        cout << "bouton gauche" << endl;
+        if (ea.getButton() == osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON)
+        cout << "bouton milieu" << endl;
+        if (ea.getButton() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON)
+        cout << "bouton droit" << endl;
+        break;
     }
+    case osgGA::GUIEventAdapter::DOUBLECLICK :
+    // double clic à la souris
+    break ;
+    }
+    return false ;
+    // pour que l'événement soit traité par d'autres gestionnaires
 }
 
 osg::ref_ptr<osg::Group> creation_troupeau(unsigned int nb_vaches, float taillex, float tailley){
@@ -86,10 +105,6 @@ osg::ref_ptr<osg::Group> creation_troupeau(unsigned int nb_vaches, float taillex
         troupeau->addChild(posvache);
     }
 
-    /*switchNode->addChild(vacheH.get());
-    switchNode->addChild(vacheM.get());
-    switchNode->addChild(vacheL.get());*/
-
     return troupeau;
 }
 
@@ -111,10 +126,12 @@ osg::ref_ptr<osg::Node> creation_sol(float taillex, float tailley){
 
 int main(void)
 {
-    osgViewer::Viewer   viewer;
-    osg::Group* scene = new osg::Group;
+    osgViewer::Viewer viewer;
+    osg::ref_ptr<osg::Group> scene = new osg::Group;
     osg::DisplaySettings::instance()->setNumMultiSamples( 4 );
     viewer.addEventHandler(new osgViewer::StatsHandler);
+
+    osg::ref_ptr<osg::Switch> switchNode = new osg::Switch;
 
     viewer.setUpViewInWindow( 100, 50, 800, 600 );
     osgViewer::Viewer::Windows fenetres;
@@ -122,12 +139,14 @@ int main(void)
     fenetres[0]->setWindowName("Vachette");
     viewer.getCamera()->setClearColor( osg::Vec4( 0,0.5,1,1 ) );
 
-    /*osg::ref_ptr<osg::Switch> switchNode = new osg::Switch;
-    osg::ref_ptr<GestionEvenements> gestionnaire = new GestionEvenements(scene, switchNode);
-    viewer.addEventHandler(gestionnaire.get());*/
-
-    scene->addChild(creation_troupeau(500, 10000, 10000));
+    osg::ref_ptr<osg::Group> troupeau = creation_troupeau(250, 10000, 10000);
     scene->addChild(creation_sol(12000, 12000));
+    switchNode->addChild(troupeau);
+
+    osg::ref_ptr<GestionEvenements> gestionnaire = new GestionEvenements(scene, switchNode);
+    viewer.addEventHandler(gestionnaire.get());
+
+    scene->addChild(switchNode.get());
 
     viewer.setSceneData(scene);
     return viewer.run();

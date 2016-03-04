@@ -1,1 +1,0 @@
-g++ -o prog cube.cpp -losg -losgDB -losgViewer

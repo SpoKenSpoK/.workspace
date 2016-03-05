@@ -139,7 +139,7 @@ int main(void)
     fenetres[0]->setWindowName("Vachette");
     viewer.getCamera()->setClearColor( osg::Vec4( 0,0.5,1,1 ) );
 
-    osg::ref_ptr<osg::Group> troupeau = creation_troupeau(250, 10000, 10000);
+    osg::ref_ptr<osg::Group> troupeau = creation_troupeau(20, 10000, 10000);
     scene->addChild(creation_sol(12000, 12000));
     switchNode->addChild(troupeau);
 

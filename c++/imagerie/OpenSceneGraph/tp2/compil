@@ -1,1 +1,1 @@
-g++ -o vachette vachette.cpp -losg -losgDB -losgGA -losgViewer -losgText -losgUtil
+g++ -o vachette vachette.cpp -losg -losgDB -losgGA -losgViewer -losgText -losgUtil -losgParticle -losgShadow

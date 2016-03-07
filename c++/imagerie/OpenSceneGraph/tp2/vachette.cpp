@@ -19,11 +19,29 @@
 #include <osgShadow/SoftShadowMap>
 #include <osgGA/DriveManipulator>
 #include <osgText/Text>
+#include <osg/NodeCallback>
+#include <sstream>
 
 using namespace std;
 
 // g++ -o prog cube.cpp -losg -losgDB -losgViewer
 
+osg::ref_ptr<osgGA::DriveManipulator> camera;
+osg::ref_ptr<osgText::Text> text = new osgText::Text;
+
+
+class callbackSpeed : public osg::NodeCallback
+{
+    public:
+        virtual void operator() (osg::Node* n, osg::NodeVisitor* nv)
+        {
+            double speed = camera->getVelocity();
+            std::ostringstream oss;
+            oss << speed;
+            std::string os = oss.str();
+            text->setText(os);
+        }
+};
 
 osg::Node* creationHUD()
 {
@@ -38,11 +56,10 @@ osg::Node* creationHUD()
     camera->setRenderOrder(osg::Camera::POST_RENDER);
     // Les éléments graphiques du HUD (ici un simple texte) constitueront un sous-graphe
     // de la caméra que l'on vient de créer
-    osgText::Text* text = new  osgText::Text;
     text->setPosition(osg::Vec3(50.0f, 50.0f, 0.0f));
-    text->setText("Le texte de mon HUD");
+    //text->setText(speed_txt);
     text->setCharacterSize(20);
-    //text->setFont("arial.ttf");
+    text->setFont("arial.ttf");
     osg::Geode* geode = new osg::Geode();
     geode->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     geode->addDrawable(text);
@@ -163,15 +180,14 @@ int main(void)
     osg::ref_ptr<osg::Group> scene = new osg::Group;
     osg::DisplaySettings::instance()->setNumMultiSamples( 4 );
     viewer.addEventHandler(new osgViewer::StatsHandler);
+    camera = new osgGA::DriveManipulator();
+    viewer.setCameraManipulator(camera.get());
 
     viewer.setUpViewInWindow( 100, 50, 800, 600 );
     osgViewer::Viewer::Windows fenetres;
     viewer.getWindows(fenetres);
     fenetres[0]->setWindowName("Vachette");
     viewer.getCamera()->setClearColor( osg::Vec4( 0,0.5,1,1 ) );
-
-    /*osg::ref_ptr<osgGA::DriveManipulator> camera = new osgGA::DriveManipulator();
-    viewer.setCameraManipulator(camera.get());*/
 
     osg::ref_ptr<osg::LightSource> lumiereOne = new osg::LightSource;
     lumiereOne->getLight()->setLightNum(1); // GL_LIGHT1
@@ -185,10 +201,9 @@ int main(void)
     osg::ref_ptr<osgShadow::SoftShadowMap> sm = new osgShadow::SoftShadowMap;
     //osg::ref_ptr<osgShadow::ShadowMap> sm = new osgShadow::ShadowMap;
     float douceur = 0.003;
-    sm->setSoftnessWidth(douceur);
-    shadowScene->setShadowTechnique(sm.get());
+    //sm->setSoftnessWidth(douceur);
+    //shadowScene->setShadowTechnique(sm.get());
     shadowScene->addChild(lumiereOne.get());
-    shadowScene->addChild(creationHUD());
     shadowScene->addChild(scene.get());
 
     osg::StateSet* state = shadowScene->getOrCreateStateSet();
@@ -222,6 +237,8 @@ int main(void)
     precipNode->setParticleSpeed(0.4);
     precipNode->rain(0.4); // ou « snow » pour de la neige
     scene->addChild(precipNode.get());
+    switchNode->setUpdateCallback(new callbackSpeed);
+    scene->addChild(creationHUD());
 
     viewer.setSceneData(shadowScene);
     //viewer.setSceneData(scene);

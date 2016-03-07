@@ -1,0 +1,4 @@
+g++ -Wall TP3.cpp -lGLEW -lGLU -lGL -lglut -o TP3
+./TP3
+
+rm TP3

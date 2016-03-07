@@ -1,4 +1,4 @@
-g++ -Wall TP2.cpp tetraede.cpp ../tp1/objetGeometrique.cpp -lGLEW -lGLU -lGL -lglut -o TP2
+g++ -Wall TP2.cpp tetraedre.cpp ../tp1/objetGeometrique.cpp -lGLEW -lGLU -lGL -lglut -o TP2
 ./TP2
 
 rm TP2

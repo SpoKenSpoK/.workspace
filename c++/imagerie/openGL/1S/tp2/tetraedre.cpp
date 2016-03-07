@@ -1,18 +1,15 @@
-#include "tetraede.hpp"
+#include "tetraedre.hpp"
 #include "math.h"
 #include <iostream>
 
-Tetraede::Tetraede(float _cote)
-    : objetGeometrique(4), cote(_cote)
+Tetraedre::Tetraedre(float _cote, float _x, float _y, float _z, float* _colors)
+    : objetGeometrique(36), cote(_cote), x(_x), y(_y), z(_z), colors(_colors)
 {}
 
-Tetraede::~Tetraede(){ delete [] colors; }
+Tetraedre::~Tetraedre(){ delete [] colors; }
 
-void Tetraede::calculPosition_sommets(){
+void Tetraedre::calculPosition_sommets(){
     vertices = new float [36];
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
 
     //Première Face
 	vertices[0] = x + sqrt(3)/6*cote;         //Rouge
@@ -77,7 +74,7 @@ void Tetraede::calculPosition_sommets(){
     }
 }
 
-float* Tetraede::colorisation(){
+float* Tetraedre::colorisation(){
     colors = new float[36]; // 3 couleurs à 3 valeurs R, G, B par point
 
     colors[0] = 1.0f;

@@ -9,7 +9,7 @@
 #include <GL/freeglut.h>
 #include <iostream>
 
-#include "tetraede.hpp"
+#include "tetraedre.hpp"
 
 using namespace std;
 
@@ -20,7 +20,7 @@ float anglex=0.0f;
 float angley=0.0f;
 float anglez=0.0f;
 
-Tetraede tetraede(0.5);
+Tetraedre tetraedre(0.5);
 
 static void RenderSceneCouleurs()
 {
@@ -38,7 +38,7 @@ static void RenderSceneCouleurs()
 	glBindBuffer(GL_ARRAY_BUFFER, leBufferCouleur);
 	glColorPointer(3, GL_FLOAT, 0, 0); //description des données pointées
 
-	glDrawArrays(GL_LINES, 0, 36); //3 éléments à utiliser pour le dessin
+	glDrawArrays(GL_TRIANGLES, 0, tetraedre.getNbP()); //3 éléments à utiliser pour le dessin
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
@@ -69,7 +69,7 @@ static void RenderSceneRotation()
 	glBindBuffer(GL_ARRAY_BUFFER, leVBO);
 	glVertexPointer(3, GL_FLOAT, 0, 0); //Commencer de 0, chaque position sera sur 3 éléments, de type float
 
-	glDrawArrays(GL_TRIANGLES, 0, 36); //3 éléments à utiliser pour le dessin
+	glDrawArrays(GL_TRIANGLES, 0, tetraedre.getNbP()); //3 éléments à utiliser pour le dessin
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 
@@ -85,6 +85,13 @@ static void RenderSceneCameraOrthographique()
 	//Modification de la matrice de projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity(); //remise à 0 (identité)
+
+	// Choix au niveau des différentes rotation :
+
+	//glRotatef(90, 0,1,0); // Vue de Face
+	glRotatef(90, 1,0,0); // Vue de Dessus
+	//glRotatef(0,0,1,0); // Vu de Côté
+
 	glOrtho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0); //projection orthogonale sur z=0, avec un volume de vue : xmin=-10, xmax=10, ymin=-10, ymax=10, ...
 
 	//Modification de la matrice de modélisation de la scène
@@ -99,6 +106,10 @@ static void RenderSceneCameraOrthographique()
 	glDrawArrays(GL_TRIANGLES, 0, 3); //3 éléments à utiliser pour le dessin
 
 	glDisableClientState(GL_VERTEX_ARRAY);
+
+	//parce que c'est joli...
+	glColor3f(0.2, 0.5, 0.3);
+	glutWireTeapot(2.0);
 
 	glutSwapBuffers();
 }
@@ -145,29 +156,24 @@ GLvoid callback_keyboard(unsigned char key, int x, int y)
 
 		case 'a':					// Fl�che vers le haut :
 			anglex += value;					// on d�place la cam�ra selon z-
-			//glutPostRedisplay();
 			break;
 
 		case 'z':					// Fl�che vers le bas :
 			anglex -= value;					// on d�place la cam�ra selon z
-			//glutPostRedisplay();
 			break;
 
 		case 'e':					// Fl�che vers la gauche :
 			angley += value;					// on d�place la cam�ra selon x-
-			//glutPostRedisplay();
 			break;
 		case 'r':					// Fl�che vers la gauche :
 			angley -= value;					// on d�place la cam�ra selon x-
-			//glutPostRedisplay();
 			break;
 		case 't':					// Fl�che vers la gauche :
 			anglez += value;					// on d�place la cam�ra selon x-
-			//glutPostRedisplay();
+
 			break;
 		case 'y':					// Fl�che vers la gauche :
 			anglez -= value;					// on d�place la cam�ra selon x-
-			//glutPostRedisplay();
 			break;
 		case 'w' :
 			glutDisplayFunc(RenderSceneCouleurs);
@@ -182,8 +188,12 @@ GLvoid callback_keyboard(unsigned char key, int x, int y)
 			glutDisplayFunc(RenderSceneCameraOrthographique);
 			break;
 	}
-
 	//glutDisplayFunc(RenderSceneRotation);
+
+	std::cerr <<"Angle X : "<<anglex<<std::endl;
+	std::cerr <<"Angle Y : "<<angley<<std::endl;
+	std::cerr <<"Angle Z : "<<anglez<<std::endl;
+	std::cerr <<"--------------------------------"<<std::endl;
 }
 
 
@@ -191,6 +201,17 @@ GLvoid callback_keyboard(unsigned char key, int x, int y)
 static void IdleFunc()
 {
 	glutKeyboardFunc(&callback_keyboard);
+
+	/*
+		Modifier automatiquement les valeurs des différents angles dès que le GPU est disponible.
+		Nous pouvons commenter ces lignes et modifier les valeurs à la main à l'aide des touches définies
+		dans callback_keyboard
+	*/
+
+	anglex +=0.01;
+	angley +=0.01;
+	anglez +=0.01;
+
 	glutPostRedisplay();
 }
 
@@ -199,7 +220,7 @@ static void IdleFunc()
 
 static void InitializeGlutCallbacks()
 {
-	glutDisplayFunc(RenderSceneCouleurs);
+	glutDisplayFunc(RenderSceneRotation);
 	glutIdleFunc(IdleFunc);
 }
 
@@ -208,17 +229,17 @@ static void CreateColorBuffer()
 {
  	glGenBuffers(1, &leBufferCouleur); //génération d'une référence de buffer object
 	glBindBuffer(GL_ARRAY_BUFFER, leBufferCouleur); //liaison du buffer avec un type tableau de données
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* 36 /*9*/, tetraede.colorisation()/*colors*/, GL_STATIC_DRAW); //création et initialisation du container de données (3 couleurs -> 9 float)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)* 36 /*9*/, tetraedre.colorisation()/*colors*/, GL_STATIC_DRAW); //création et initialisation du container de données (3 couleurs -> 9 float)
 }
 
 
 static void CreateVertexBuffer()
 {
-	tetraede.calculPosition_sommets();
+	tetraedre.calculPosition_sommets();
 
  	glGenBuffers(1, &leVBO); //génération d'une référence de buffer object
 	glBindBuffer(GL_ARRAY_BUFFER, leVBO); //liaison du buffer avec un type tableau de données
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*36, tetraede.returnVertices(), GL_STATIC_DRAW); //création et initialisation du container de données (3 sommets -> 9 float)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*36, tetraedre.returnVertices(), GL_STATIC_DRAW); //création et initialisation du container de données (3 sommets -> 9 float)
 }
 
 int main(int argc, char** argv)

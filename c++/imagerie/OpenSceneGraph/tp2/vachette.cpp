@@ -180,6 +180,7 @@ int main(void)
     osg::ref_ptr<osg::Group> scene = new osg::Group;
     osg::DisplaySettings::instance()->setNumMultiSamples( 4 );
     viewer.addEventHandler(new osgViewer::StatsHandler);
+
     camera = new osgGA::DriveManipulator();
     viewer.setCameraManipulator(camera.get());
 
@@ -237,7 +238,7 @@ int main(void)
     precipNode->setParticleSpeed(0.4);
     precipNode->rain(0.4); // ou « snow » pour de la neige
     scene->addChild(precipNode.get());
-    switchNode->setUpdateCallback(new callbackSpeed);
+    scene->setUpdateCallback(new callbackSpeed);
     scene->addChild(creationHUD());
 
     viewer.setSceneData(shadowScene);

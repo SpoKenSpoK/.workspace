@@ -12,9 +12,35 @@
 #include <osgUtil/LineSegmentIntersector>
 #include <ctime>
 #include <cstdlib>
+#include <osgSim/DOFTransform>
+#include <osg/animationpath>
+#include <osg/matrixtransform>
 
 osgViewer::Viewer viewer;
 osg::ref_ptr<osg::Node> terrain;
+
+float angle = 0.0f;
+
+class ChercheNoeud : public osg::NodeVisitor
+{
+public:
+	inline ChercheNoeud ( const std::string& name )
+	: osg::NodeVisitor( osg::NodeVisitor::TRAVERSE_ALL_CHILDREN ), _name( name ) {}
+	// Méthode appelée pour chaque nœud du graphe. Si son nom correspond à celui passé
+	// en paramètre au constructeur, on sauve l'adresse du nœud dans _node
+	inline virtual void apply( osg::Node& node ) {
+		if (node.getName() == _name)
+			_node = &node;
+		traverse( node );
+		// On continue le parcours du graphe
+	}
+	osg::Node* getNode() { return _node.get(); }
+
+protected:
+	std::string _name;
+	osg::ref_ptr<osg::Node> _node;
+};
+
 
 bool intersection_terrain( float x, float y, osg::Node* terrain, osg::Vec3& inter, osg::Vec3& normal)
 {
@@ -47,6 +73,14 @@ public:
 		osg::Quat rotation;
 		rotation.makeRotate(osg::Vec3f(0, 0, 1), normal);
 		pos_tank->setAttitude(rotation);
+
+		ChercheNoeud rechercheTourelle("turret");
+		pos_tank->accept(rechercheTourelle);
+		osg::Node* noeudTourelle = rechercheTourelle.getNode();
+		if (noeudTourelle != NULL){
+			osgSim::DOFTransform* tourelleDOF = dynamic_cast<osgSim::DOFTransform*>(noeudTourelle);
+			tourelleDOF->setCurrentHPR(osg::Vec3(osg::DegreesToRadians(angle),0.0,0.0));
+		}
     }
 };
 
@@ -58,10 +92,6 @@ class GestionEvenements : public osgGA::GUIEventHandler
  virtual bool handle( const osgGA::GUIEventAdapter& ea,
  osgGA::GUIActionAdapter& aa);
 };
-
-
-
-
 
 
 osg::Node* creation_terrain(){
@@ -110,7 +140,6 @@ osg::ref_ptr<osg::Group> creation_foret(osg::Node* terrain, int nb_arbres){
 	osg::ref_ptr<osg::Group> foret = new osg::Group;
 	osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D(osgDB::readImageFile("arbre.tga"));
 
-
 	srand (static_cast <unsigned> (time(0)));
 	float arbre_posx, arbre_posy, arbre_taille;
 	for(int i=0; i<nb_arbres; ++i){
@@ -118,7 +147,6 @@ osg::ref_ptr<osg::Group> creation_foret(osg::Node* terrain, int nb_arbres){
 		arbre_posx = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/1000));
 		arbre_posy = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/1000));
 		arbre_taille = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/15)) + 5.0;
-		std::cout << arbre_posx << " " << arbre_posy << std::endl;
 		osg::ref_ptr<osg::Geometry> quad = osg::createTexturedQuadGeometry(
 			osg::Vec3(-arbre_taille/2, 0, 0), // coin de départ
 			osg::Vec3(arbre_taille, 0.0, 0.0), // largeur
@@ -156,6 +184,7 @@ osg::PositionAttitudeTransform* creation_CHARRR(float posx, float posy, osg::Nod
 	pos_tank->setPosition(pos);
 	osg::Quat rotation;
 	rotation.makeRotate(osg::Vec3f(0, 0, 1), normal);
+	pos_tank->setScale(osg::Vec3f(10.0,10.0,10.0));
 	pos_tank->setAttitude(rotation);
 	pos_tank->addChild(LECHARRR);
 	pos_tank->setUpdateCallback(new Deplacement);
@@ -171,8 +200,10 @@ bool GestionEvenements::handle( const osgGA::GUIEventAdapter& ea,
 			switch(ea.getKey()){
 
 				case 'a':
+					angle+=5;
 					break;
 				case 'z':
+					angle-=5;
 					break;
 				case 'e':
 					break;
@@ -214,10 +245,16 @@ int main(void){
 
 	terrain = creation_terrain();
 	scene->addChild(terrain.get());
-	scene->addChild(creation_foret(terrain, 500));
+	scene->addChild(creation_foret(terrain, 2500));
 
-	scene->addChild(creation_CHARRR(0,0,terrain));
+	osg::ref_ptr<osgGA::NodeTrackerManipulator> manip = new osgGA::NodeTrackerManipulator;
+	osg::ref_ptr<osg::Node> tank = creation_CHARRR(0,0,terrain);
 
+	manip->setTrackNode(tank.get());
+	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
+	//	viewer.setCameraManipulator(manip.get());
+
+	scene->addChild(tank);
 
 
 	viewer.setSceneData(scene);

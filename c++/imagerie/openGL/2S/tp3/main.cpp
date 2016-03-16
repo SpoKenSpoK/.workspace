@@ -268,7 +268,8 @@ void initialise_scene()
 	terrain.creation( 1.0, 0.1, 1.0, "terrain_128x128.pgm" );
 	terrain.calcule_coordonnees_texture();
 	terrain.calcule_normales();
-	terrain.charger("terrain_texture.png");
+	//terrain.charger("terrain_texture.png");
+	terrain.charger("texture.jpg");
 }
 
 

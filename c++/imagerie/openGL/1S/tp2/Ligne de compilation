@@ -1,0 +1,3 @@
+Ligne de compilation sous Linux : 
+
+g++ -Wall TP2.cpp tetraedre.cpp objetGeometrique.cpp -lGLEW -lGLU -lGL -lglut -o TP2

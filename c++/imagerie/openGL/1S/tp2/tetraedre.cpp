@@ -11,6 +11,7 @@ Tetraedre::~Tetraedre(){ delete [] colors; }
 void Tetraedre::calculPosition_sommets(){
     vertices = new float [36];
 
+// Coordonnées trouvées sur le net
     //Première Face
 	vertices[0] = x + sqrt(3)/6*cote;         //Rouge
 	vertices[1] = y - 1/4*sqrt(2/3)*cote ;
@@ -63,15 +64,12 @@ void Tetraedre::calculPosition_sommets(){
 	vertices[34] = y - 1/4*sqrt(2/3)*cote;
 	vertices[35] = z + cote/2;
 
-    std::cout<< y - 1/4*sqrt(2/3)*cote <<std::endl;
-
-
-    for(unsigned int i=0; i<36; i+=3){
+   /* for(unsigned int i=0; i<36; i+=3){
         std::cout << "Sommet     :"<< i/3 +1 <<std::endl;
         std::cout << vertices[i] << std::endl;
         std::cout << vertices[i+1] << std::endl;
         std::cout << vertices[i+2] << std::endl << std::endl;
-    }
+    } */
 }
 
 float* Tetraedre::colorisation(){

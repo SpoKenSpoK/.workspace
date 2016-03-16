@@ -1,6 +1,7 @@
 //R. RAFFIN, IUT Aix-Marseille, département Informatique, site d'Arles
 //M4104c, ARCHI IN
 //romain.raffin[AT]univ-amu.fr
+
 //Display Lists vs VBO vs Vertex Array
 #include <GL/glew.h> //attention, à inclure avant gl.h
 

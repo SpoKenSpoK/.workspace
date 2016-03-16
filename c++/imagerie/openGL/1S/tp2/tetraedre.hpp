@@ -1,7 +1,7 @@
 #ifndef TETRAEDRE_HPP
 #define TETRAEDRE_HPP
 
-#include "../tp1/objetGeometrique.hpp"
+#include "objetGeometrique.hpp"
 
 class Tetraedre : public objetGeometrique {
 private:

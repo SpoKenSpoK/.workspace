@@ -1,0 +1,1 @@
+g++ -o tank tank.cpp -losg -losgDB -losgGA -losgViewer -losgText -losgUtil -losgParticle -losgShadow

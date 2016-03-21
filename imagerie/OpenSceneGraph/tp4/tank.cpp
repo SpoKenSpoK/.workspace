@@ -13,8 +13,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <osgSim/DOFTransform>
-#include <osg/animationpath>
-#include <osg/matrixtransform>
+#include <osg/AnimationPath>
+#include <osg/MatrixTransform>
 
 osgViewer::Viewer viewer;
 osg::ref_ptr<osg::Node> terrain;
@@ -139,6 +139,7 @@ osg::Node* creation_terrain(){
 osg::ref_ptr<osg::Group> creation_foret(osg::Node* terrain, int nb_arbres){
 	osg::ref_ptr<osg::Group> foret = new osg::Group;
 	osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D(osgDB::readImageFile("arbre.tga"));
+	texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
 
 	srand (static_cast <unsigned> (time(0)));
 	float arbre_posx, arbre_posy, arbre_taille;

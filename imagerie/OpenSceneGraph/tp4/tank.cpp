@@ -15,6 +15,7 @@
 #include <osgSim/DOFTransform>
 #include <osg/AnimationPath>
 #include <osg/MatrixTransform>
+#include <osgParticle/SmokeEffect>
 
 osgViewer::Viewer viewer;
 osg::ref_ptr<osg::Node> terrain;
@@ -26,13 +27,10 @@ class ChercheNoeud : public osg::NodeVisitor
 public:
 	inline ChercheNoeud ( const std::string& name )
 	: osg::NodeVisitor( osg::NodeVisitor::TRAVERSE_ALL_CHILDREN ), _name( name ) {}
-	// Méthode appelée pour chaque nœud du graphe. Si son nom correspond à celui passé
-	// en paramètre au constructeur, on sauve l'adresse du nœud dans _node
 	inline virtual void apply( osg::Node& node ) {
 		if (node.getName() == _name)
 			_node = &node;
 		traverse( node );
-		// On continue le parcours du graphe
 	}
 	osg::Node* getNode() { return _node.get(); }
 
@@ -68,7 +66,7 @@ public:
     {
 		osg::PositionAttitudeTransform* pos_tank = (osg::PositionAttitudeTransform*)n;
 		osg::Vec3 pos, normal;
-		intersection_terrain(pos_tank->getPosition().x(), pos_tank->getPosition().y() + 0.01, terrain, pos, normal);
+		intersection_terrain(pos_tank->getPosition().x(), pos_tank->getPosition().y(), terrain, pos, normal);
 		pos_tank->setPosition(pos);
 		osg::Quat rotation;
 		rotation.makeRotate(osg::Vec3f(0, 0, 1), normal);
@@ -83,8 +81,6 @@ public:
 		}
     }
 };
-
-
 
 class GestionEvenements : public osgGA::GUIEventHandler
 {
@@ -189,6 +185,16 @@ osg::PositionAttitudeTransform* creation_CHARRR(float posx, float posy, osg::Nod
 	pos_tank->setAttitude(rotation);
 	pos_tank->addChild(LECHARRR);
 	pos_tank->setUpdateCallback(new Deplacement);
+
+	osg::ref_ptr<osgParticle::SmokeEffect> effectNode = new osgParticle::SmokeEffect; // Création fumée
+	effectNode->setTextureFileName("smoke.png");
+	effectNode->setIntensity(2);
+	effectNode->setScale(2);
+	effectNode->setPosition(osg::Vec3(pos_tank->getPosition().x(),pos_tank->getPosition().y()-50,pos_tank->getPosition().z()));
+	pos_tank->addChild(effectNode.get());
+
+
+
 	return pos_tank;
 }
 
@@ -255,7 +261,20 @@ int main(void){
 	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
 	//	viewer.setCameraManipulator(manip.get());
 
-	scene->addChild(tank);
+	osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform; // PAT sur le Tank
+	mt->addChild( tank ); // Ajout du node tank au PAT
+	osg::ref_ptr<osg::AnimationPath> path = new osg::AnimationPath; // Animation PAT
+	// Définition du mode de boucle (autres possibilités : LOOP, NO_LOOPING)
+	path->setLoopMode( osg::AnimationPath::SWING );
+	// Création de points de contrôle
+	osg::AnimationPath::ControlPoint  p0(osg::Vec3(-10,0,0));
+	osg::AnimationPath::ControlPoint  p1(osg::Vec3( 10,0,0));
+	path->insert( 0.0f, p0 );
+	path->insert( 2.0f, p1 );
+	osg::ref_ptr<osg::AnimationPathCallback> apc = new osg::AnimationPathCallback( path.get() );
+	mt->setUpdateCallback( apc.get() );
+
+	scene->addChild(mt);
 
 
 	viewer.setSceneData(scene);

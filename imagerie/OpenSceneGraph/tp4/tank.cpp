@@ -59,6 +59,34 @@ bool intersection_terrain( float x, float y, osg::Node* terrain, osg::Vec3& inte
 	return false;
 }
 
+class AnimationTank : public osg::AnimationPathCallback
+{
+public :
+    AnimationTank(osg::AnimationPath* p, osg::Node* _terrain)
+		: osg::AnimationPathCallback(p), terrain(_terrain) {}
+    virtual void operator()(osg::Node*  node, osg::NodeVisitor*  nv)
+    {
+        osg::AnimationPathCallback::operator()(node, nv);
+        osg::PositionAttitudeTransform* transform =
+		dynamic_cast<osg::PositionAttitudeTransform*>(node);
+         if (transform)
+         {
+            osg::Vec3 position = transform->getPosition();
+			osg::Vec3 normale;
+			intersection_terrain(position.x(), position.y(), terrain, position, normale);
+			osg::Quat rotate;
+			rotate.makeRotate(osg::Vec3f(0, 0, 1), normale);
+			transform->setAttitude(rotate);
+			transform->setPosition(position);
+        }
+    }
+   osg::Node* terrain;
+};
+
+
+
+
+
 class Deplacement : public osg::NodeCallback
 {
 public:
@@ -181,9 +209,9 @@ osg::PositionAttitudeTransform* creation_CHARRR(float posx, float posy, osg::Nod
 	pos_tank->setPosition(pos);
 	osg::Quat rotation;
 	rotation.makeRotate(osg::Vec3f(0, 0, 1), normal);
-	pos_tank->setScale(osg::Vec3f(10.0,10.0,10.0));
 	pos_tank->setAttitude(rotation);
 	pos_tank->addChild(LECHARRR);
+	pos_tank->setScale(osg::Vec3f(10.0,10.0,10.0));
 	pos_tank->setUpdateCallback(new Deplacement);
 
 	osg::ref_ptr<osgParticle::SmokeEffect> effectNode = new osgParticle::SmokeEffect; // Création fumée
@@ -259,22 +287,28 @@ int main(void){
 
 	manip->setTrackNode(tank.get());
 	manip->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
-	//	viewer.setCameraManipulator(manip.get());
+	//viewer.setCameraManipulator(manip.get());
 
-	osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform; // PAT sur le Tank
-	mt->addChild( tank ); // Ajout du node tank au PAT
+	//osg::ref_ptr<osg::PositionAttitudeTransform> mt = new osg::PositionAttitudeTransform; // PAT sur le Tank
+	//mt->addChild( tank ); // Ajout du node tank au PAT
 	osg::ref_ptr<osg::AnimationPath> path = new osg::AnimationPath; // Animation PAT
 	// Définition du mode de boucle (autres possibilités : LOOP, NO_LOOPING)
-	path->setLoopMode( osg::AnimationPath::SWING );
+	path->setLoopMode( osg::AnimationPath::LOOP );
 	// Création de points de contrôle
-	osg::AnimationPath::ControlPoint  p0(osg::Vec3(-10,0,0));
-	osg::AnimationPath::ControlPoint  p1(osg::Vec3( 10,0,0));
+	osg::AnimationPath::ControlPoint  p0(osg::Vec3(0,0,0));
+	osg::AnimationPath::ControlPoint  p1(osg::Vec3( 0,1200,0));
+	osg::AnimationPath::ControlPoint  p2(osg::Vec3( 1200,1200,0));
+	osg::AnimationPath::ControlPoint  p3(osg::Vec3( 1200,0,0));
+	osg::AnimationPath::ControlPoint  p4(osg::Vec3( 0,0,0));
 	path->insert( 0.0f, p0 );
-	path->insert( 2.0f, p1 );
-	osg::ref_ptr<osg::AnimationPathCallback> apc = new osg::AnimationPathCallback( path.get() );
-	mt->setUpdateCallback( apc.get() );
+	path->insert( 4.0f, p1 );
+	path->insert( 8.0f, p2 );
+	path->insert( 12.0f, p3 );
+	path->insert( 16.0f, p4 );
+	osg::ref_ptr<osg::AnimationPathCallback> apc = new AnimationTank(path, terrain);
+	tank->setUpdateCallback( apc.get() );
 
-	scene->addChild(mt);
+	scene->addChild(tank);
 
 
 	viewer.setSceneData(scene);
